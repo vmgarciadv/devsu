@@ -11,6 +11,6 @@ namespace devsu.Models
         public string Contrasena { get; set; }
 
         [Required]
-        public string Estado { get; set; }
+        public bool Estado { get; set; }
     }
 }

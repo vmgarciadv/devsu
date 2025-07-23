@@ -8,7 +8,9 @@ namespace devsu.Mappings
     {
         public MappingProfile()
         {
-            CreateMap<Cliente, ClienteDto>().ReverseMap();
+            CreateMap<Cliente, ClienteDto>()
+                .ReverseMap()
+                .ForMember(dest => dest.Id, opt => opt.Ignore());
         }
     }
 }
