@@ -9,5 +9,6 @@ namespace devsu.Repositories
         Task<IEnumerable<Cuenta>> GetCuentasByClienteAsync(int clienteId);
         Task<Cuenta> GetByNumeroCuentaAsync(int numeroCuenta);
         Task<IEnumerable<Cuenta>> GetAllWithClienteAsync();
+        Task<Cuenta> GetCuentaWithMovimientosAsync(int id);
     }
 }
