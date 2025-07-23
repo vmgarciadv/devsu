@@ -61,5 +61,19 @@ namespace devsu.Controllers
                 return BadRequest(ex.Message);
             }
         }
+
+        [HttpPut("{id}")]
+        public async Task<ActionResult<ClienteDto>> UpdateCliente(int id, ClienteDto clienteDto)
+        {
+            try
+            {
+                var cliente = await _clienteService.UpdateClienteAsync(id, clienteDto);
+                return Ok(cliente);
+            }
+            catch (KeyNotFoundException)
+            {
+                return NotFound();
+            }
+        }
     }
 }

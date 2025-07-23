@@ -25,6 +25,6 @@ namespace devsu.DTOs
         [Required]
         public string Contrasena { get; set; }
         
-        public bool Estado { get; set; } = true;
+        public bool Estado { get; set; } = true; // Por defecto, el cliente está activo
     }
 }
