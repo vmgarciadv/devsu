@@ -13,7 +13,7 @@ namespace devsu.Mappings
                 .ForMember(dest => dest.Id, opt => opt.Ignore());
 
             CreateMap<Cuenta, CuentaDto>()
-                .ForMember(dest => dest.ClienteNombre, opt => opt.MapFrom(src => src.Cliente.Nombre));
+                .ForMember(dest => dest.NombreCliente, opt => opt.MapFrom(src => src.Cliente.Nombre));
             CreateMap<CuentaDto, Cuenta>();
         }
     }

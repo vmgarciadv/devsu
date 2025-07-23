@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using devsu.Validators;
 
 namespace devsu.DTOs
 {
@@ -6,10 +7,10 @@ namespace devsu.DTOs
     {
         public int CuentaId { get; set; }
         
-        [Required]
-        public string NumeroCuenta { get; set; }
+        public int NumeroCuenta { get; set; }
         
         [Required]
+        [TipoCuenta]
         public string TipoCuenta { get; set; }
         
         [Required]
@@ -17,17 +18,20 @@ namespace devsu.DTOs
         
         public bool Estado { get; set; } = true;
         
-        [Required]
         public int ClienteId { get; set; }
         
-        public string ClienteNombre { get; set; }
+        [Required]
+        public string NombreCliente { get; set; }
     }
     
     // DTO para operaciones PATCH - permite valores nulos
     public class CuentaPatchDto
     {
         public string? NumeroCuenta { get; set; }
+        
+        [TipoCuenta]
         public string? TipoCuenta { get; set; }
+        
         public decimal? SaldoInicial { get; set; }
         public bool? Estado { get; set; }
         public int? ClienteId { get; set; }

@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using devsu.Validators;
 
 namespace devsu.Models
 {
@@ -11,10 +12,11 @@ namespace devsu.Models
         
         [Required]
         [MaxLength(20)]
-        public string NumeroCuenta { get; set; }
+        public int NumeroCuenta { get; set; }
         
         [Required]
         [MaxLength(20)]
+        [TipoCuenta]
         public string TipoCuenta { get; set; }
         
         [Required]

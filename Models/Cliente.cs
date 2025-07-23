@@ -12,5 +12,13 @@ namespace devsu.Models
 
         [Required]
         public bool Estado { get; set; }
+
+        // Navegación
+        public virtual ICollection<Cuenta> Cuentas { get; set; }
+        
+        public Cliente()
+        {
+            Cuentas = new HashSet<Cuenta>();
+        }
     }
 }
