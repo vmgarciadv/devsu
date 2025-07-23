@@ -18,6 +18,19 @@ namespace devsu.Controllers
             _clienteService = clienteService;
         }
         
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<ClienteDto>>> GetClientes()
+        {
+            try {
+                var clientes = await _clienteService.GetAllClientesAsync();
+                return Ok(clientes);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Error interno: {ex.Message}");
+            }
+        }
+
         [HttpGet("{id}")]
         public async Task<ActionResult<ClienteDto>> GetCliente(int id)
         {

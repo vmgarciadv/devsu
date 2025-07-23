@@ -8,5 +8,6 @@ namespace devsu.Services
     {
         Task<ClienteDto> GetClienteByIdAsync(int id);
         Task<ClienteDto> CreateClienteAsync(ClienteDto clienteDto);
+        Task<IEnumerable<ClienteDto>> GetAllClientesAsync();
     }
 }

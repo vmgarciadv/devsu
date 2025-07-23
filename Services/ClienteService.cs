@@ -41,5 +41,11 @@ namespace devsu.Services
             
             return _mapper.Map<ClienteDto>(cliente);
         }
+
+        public async Task<IEnumerable<ClienteDto>> GetAllClientesAsync()
+        {
+            var clientes = await _unitOfWork.Clientes.GetAllAsync();
+            return _mapper.Map<IEnumerable<ClienteDto>>(clientes);
+        }
     }
 }
