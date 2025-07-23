@@ -8,12 +8,14 @@ namespace devsu.Repositories
         private readonly DevsuContext _context;
         public IClienteRepository Clientes { get; private set; }
         public ICuentaRepository Cuentas { get; private set; }
+        public IMovimientoRepository Movimientos { get; private set; }
         
         public UnitOfWork(DevsuContext context)
         {
             _context = context;
             Clientes = new ClienteRepository(_context);
             Cuentas = new CuentaRepository(_context);
+            Movimientos = new MovimientoRepository(_context);
         }
         
         public async Task<int> CompleteAsync()

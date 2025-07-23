@@ -32,5 +32,12 @@ namespace devsu.Models
         // Navegación
         [ForeignKey("ClienteId")]
         public virtual Cliente Cliente { get; set; }
+
+        public virtual ICollection<Movimiento> Movimientos { get; set; }
+        
+        public Cuenta()
+        {
+            Movimientos = new HashSet<Movimiento>();
+        }
     }
 }
