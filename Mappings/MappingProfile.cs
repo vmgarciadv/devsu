@@ -11,6 +11,10 @@ namespace devsu.Mappings
             CreateMap<Cliente, ClienteDto>()
                 .ReverseMap()
                 .ForMember(dest => dest.Id, opt => opt.Ignore());
+
+            CreateMap<Cuenta, CuentaDto>()
+                .ForMember(dest => dest.ClienteNombre, opt => opt.MapFrom(src => src.Cliente.Nombre));
+            CreateMap<CuentaDto, Cuenta>();
         }
     }
 }
