@@ -94,5 +94,83 @@ namespace devsu.Services
             
             return numeroCuenta;
         }
+
+        public async Task<CuentaDto> UpdateCuentaAsync(int numeroCuenta, CuentaDto cuentaDto)
+        {
+            var cuenta = await _unitOfWork.Cuentas.GetByNumeroCuentaAsync(numeroCuenta);
+            if (cuenta == null)
+            {
+                throw new KeyNotFoundException("Cuenta no encontrada");
+            }
+            
+            // Actualizar manualmente las propiedades para evitar problemas con el Id
+            cuenta.TipoCuenta = cuentaDto.TipoCuenta;
+            cuenta.Estado = cuentaDto.Estado;
+            
+            // Validar y normalizar TipoCuenta
+            if (!string.IsNullOrEmpty(cuenta.TipoCuenta))
+            {
+                string normalized = cuenta.TipoCuenta.Trim().ToLower();
+                if (normalized == "ahorro")
+                {
+                    cuenta.TipoCuenta = "Ahorro";
+                }
+                else if (normalized == "corriente")
+                {
+                    cuenta.TipoCuenta = "Corriente";
+                }
+                else
+                {
+                    throw new InvalidOperationException($"TipoCuenta debe ser 'Ahorro' o 'Corriente'. Valor recibido: '{cuenta.TipoCuenta}'");
+                }
+            }
+            
+            await _unitOfWork.CompleteAsync();
+            
+            return _mapper.Map<CuentaDto>(cuenta);
+        }
+
+        public async Task<CuentaDto> PatchCuentaAsync(int numeroCuenta, CuentaPatchDto cuentaPatchDto)
+        {
+            var cuenta = await _unitOfWork.Cuentas.GetByNumeroCuentaAsync(numeroCuenta);
+            if (cuenta == null)
+            {
+                throw new KeyNotFoundException("Cuenta no encontrada");
+            }
+            
+            // Actualizar solo las propiedades que se proporcionan
+            if (cuentaPatchDto.NumeroCuenta.HasValue)
+                cuenta.NumeroCuenta = cuentaPatchDto.NumeroCuenta.Value;
+            
+            if (cuentaPatchDto.TipoCuenta != null)
+            {
+                string normalized = cuentaPatchDto.TipoCuenta.Trim().ToLower();
+                if (normalized == "ahorro")
+                {
+                    cuenta.TipoCuenta = "Ahorro";
+                }
+                else if (normalized == "corriente")
+                {
+                    cuenta.TipoCuenta = "Corriente";
+                }
+                else
+                {
+                    throw new InvalidOperationException($"TipoCuenta debe ser 'Ahorro' o 'Corriente'. Valor recibido: '{cuentaPatchDto.TipoCuenta}'");
+                }
+            }
+            
+            if (cuentaPatchDto.SaldoInicial.HasValue)
+                cuenta.SaldoInicial = cuentaPatchDto.SaldoInicial.Value;
+            
+            if (cuentaPatchDto.Estado.HasValue)
+                cuenta.Estado = cuentaPatchDto.Estado.Value;
+            
+            if (cuentaPatchDto.ClienteId.HasValue)
+                cuenta.ClienteId = cuentaPatchDto.ClienteId.Value;
+            
+            await _unitOfWork.CompleteAsync();
+            
+            return _mapper.Map<CuentaDto>(cuenta);
+        }
     }
 }

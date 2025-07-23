@@ -59,5 +59,37 @@ namespace devsu.Controllers
                 return BadRequest(ex.Message);
             }
         }
+
+        [HttpPut("{numeroCuenta}")]
+        public async Task<ActionResult<CuentaDto>> UpdateCuenta(int numeroCuenta, CuentaDto cuentaDto)
+        {
+            try
+            {
+                var cuenta = await _cuentaService.UpdateCuentaAsync(numeroCuenta, cuentaDto);
+                return Ok(cuenta);
+            }
+            catch (KeyNotFoundException)
+            {
+                return NotFound();
+            }
+        }
+
+        [HttpPatch("{numeroCuenta}")]
+        public async Task<ActionResult<CuentaDto>> PatchCuenta(int numeroCuenta, [FromBody] CuentaPatchDto cuentaPatchDto)
+        {
+            try
+            {
+                var cuenta = await _cuentaService.PatchCuentaAsync(numeroCuenta, cuentaPatchDto);
+                return Ok(cuenta);
+            }
+            catch (KeyNotFoundException)
+            {
+                return NotFound();
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
     }
 }
