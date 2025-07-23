@@ -27,7 +27,7 @@ namespace devsu.DTOs
     // DTO para operaciones PATCH - permite valores nulos
     public class CuentaPatchDto
     {
-        public string? NumeroCuenta { get; set; }
+        public int? NumeroCuenta { get; set; }
         
         [TipoCuenta]
         public string? TipoCuenta { get; set; }
