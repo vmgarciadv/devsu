@@ -75,5 +75,23 @@ namespace devsu.Controllers
                 return NotFound();
             }
         }
+
+        [HttpPatch("{id}")]
+        public async Task<ActionResult<ClienteDto>> PatchCliente(int id, [FromBody] ClientePatchDto clientePatchDto)
+        {
+            try
+            {
+                var cliente = await _clienteService.PatchClienteAsync(id, clientePatchDto);
+                return Ok(cliente);
+            }
+            catch (KeyNotFoundException)
+            {
+                return NotFound();
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
     }
 }

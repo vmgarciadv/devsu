@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using AutoMapper;
 using devsu.DTOs;
@@ -76,6 +77,48 @@ namespace devsu.Services
             cliente.Contrasena = clienteDto.Contrasena;
             cliente.Estado = clienteDto.Estado;
             
+            await _unitOfWork.CompleteAsync();
+            
+            return _mapper.Map<ClienteDto>(cliente);
+        }
+
+        public async Task<ClienteDto> PatchClienteAsync(int id, ClientePatchDto clientePatchDto)
+        {
+            var cliente = await _unitOfWork.Clientes.GetByIdAsync(id);
+            if (cliente == null)
+            {
+                throw new KeyNotFoundException("Cliente no encontrado");
+            }
+
+            // Validar que no exista otro cliente con la misma Identificación (en caso de ser necesario)
+            if (clientePatchDto.Identificacion != null && clientePatchDto.Identificacion != cliente.Identificacion)
+            {
+                var clienteExistente = await _unitOfWork.Clientes.GetByIdentificacionAsync(clientePatchDto.Identificacion);
+                if (clienteExistente != null && clienteExistente.Id != id)
+                {
+                    throw new InvalidOperationException("Ya existe un cliente con esa Identificacion");
+                }
+            }
+
+            // Usar reflection para actualizar solo las propiedades no nulas
+            var patchProperties = typeof(ClientePatchDto).GetProperties();
+            var clienteType = typeof(Cliente);
+
+            foreach (var patchProp in patchProperties)
+            {
+                var value = patchProp.GetValue(clientePatchDto);
+                
+                // Omitir valores nulos y cadenas vacías
+                if (value == null || (value is string str && string.IsNullOrEmpty(str)))
+                    continue;
+
+                var clienteProp = clienteType.GetProperty(patchProp.Name);
+                if (clienteProp != null && clienteProp.CanWrite)
+                {
+                    clienteProp.SetValue(cliente, value);
+                }
+            }
+
             await _unitOfWork.CompleteAsync();
             
             return _mapper.Map<ClienteDto>(cliente);
