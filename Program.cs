@@ -10,6 +10,12 @@ using devsu.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Load Docker-specific configuration if running in Docker
+if (Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER") == "true")
+{
+    builder.Configuration.AddJsonFile("appsettings.Docker.json", optional: true, reloadOnChange: true);
+}
+
 // Add services to the container.
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
@@ -44,6 +50,21 @@ builder.Services.AddScoped<IMovimientoService, MovimientoService>();
 
 var app = builder.Build();
 
+// Aplicar migraciones de base de datos al iniciar la aplicación
+using (var scope = app.Services.CreateScope())
+{
+    var dbContext = scope.ServiceProvider.GetRequiredService<DevsuContext>();
+    try
+    {
+        dbContext.Database.Migrate();
+        Console.WriteLine("Migraciones de base de datos aplicadas correctamente.");
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"Ocurrio un error ejecutando las migraciones: {ex.Message}");
+    }
+}
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
@@ -54,6 +75,11 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseAuthorization();
 app.MapControllers();
+
+// Health check endpoint for Docker
+app.MapGet("/health", () => Results.Ok(new { status = "healthy", timestamp = DateTime.UtcNow }))
+    .WithName("HealthCheck")
+    .WithOpenApi();
 
 var summaries = new[]
 {
