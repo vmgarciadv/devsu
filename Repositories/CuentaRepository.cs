@@ -32,5 +32,13 @@ namespace devsu.Repositories
                 .Include(c => c.Cliente)
                 .ToListAsync();
         }
+
+        public async Task<Cuenta> GetCuentaWithMovimientosAsync(int id)
+        {
+            return await _context.Cuentas
+                .Include(c => c.Movimientos)
+                .Include(c => c.Cliente)
+                .FirstOrDefaultAsync(c => c.CuentaId == id);
+        }
     }
 }
