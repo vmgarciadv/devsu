@@ -4,8 +4,6 @@ namespace devsu.DTOs
 {
     public class ClienteDto
     {
-        public int Id { get; set; }
-        
         [Required]
         public string Nombre { get; set; }
         

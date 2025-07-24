@@ -54,7 +54,7 @@ namespace devsu.Controllers
             try
             {
                 var cliente = await _clienteService.CreateClienteAsync(clienteDto);
-                return CreatedAtAction(nameof(GetCliente), new { id = cliente.Id }, cliente);
+                return Created("", cliente);
             }
             catch (InvalidOperationException ex)
             {

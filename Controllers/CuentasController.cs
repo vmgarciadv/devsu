@@ -48,7 +48,7 @@ namespace devsu.Controllers
             try
             {
                 var cuenta = await _cuentaService.CreateCuentaAsync(cuentaDto);
-                return CreatedAtAction(nameof(GetCuenta), new { id = cuenta.CuentaId }, cuenta);
+                return CreatedAtAction(nameof(GetCuenta), new { id = cuenta.NumeroCuenta }, cuenta);
             }
             catch (KeyNotFoundException ex)
             {
