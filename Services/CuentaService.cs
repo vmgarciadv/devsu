@@ -172,5 +172,21 @@ namespace devsu.Services
             
             return _mapper.Map<CuentaDto>(cuenta);
         }
+
+        public async Task<bool> DeleteCuentaAsync(int numeroCuenta)
+        {
+            var cuenta = await _unitOfWork.Cuentas.GetByNumeroCuentaAsync(numeroCuenta);
+            if (cuenta == null)
+            {
+                throw new KeyNotFoundException("Cuenta no encontrada");
+            }
+
+            // Soft delete - cambiar Estado a false
+            cuenta.Estado = false;
+            
+            await _unitOfWork.CompleteAsync();
+            
+            return true;
+        }
     }
 }

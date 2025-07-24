@@ -11,5 +11,6 @@ namespace devsu.Services
         Task<CuentaDto> CreateCuentaAsync(CuentaDto cuentaDto);
         Task<CuentaDto> UpdateCuentaAsync(int numeroCuenta, CuentaDto cuentaDto);
         Task<CuentaDto> PatchCuentaAsync(int numeroCuenta, CuentaPatchDto cuentaPatchDto);
+        Task<bool> DeleteCuentaAsync(int numeroCuenta);
     }
 }
