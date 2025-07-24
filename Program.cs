@@ -6,6 +6,7 @@ using Microsoft.Extensions.Hosting;
 using devsu.Data;
 using devsu.Repositories;
 using devsu.Services;
+using devsu.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -27,6 +28,10 @@ builder.Services.AddControllers()
 // Database
 builder.Services.AddDbContext<DevsuContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+// Configuration
+builder.Services.Configure<BusinessRulesOptions>(
+    builder.Configuration.GetSection("BusinessRules"));
 
 // AutoMapper
 builder.Services.AddAutoMapper(typeof(Program));
