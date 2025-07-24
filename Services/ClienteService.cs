@@ -135,6 +135,13 @@ namespace devsu.Services
             // Soft delete - cambiar Estado a false
             cliente.Estado = false;
             
+            // Soft delete todas las cuentas asociadas
+            var cuentasCliente = await _unitOfWork.Cuentas.GetCuentasByClienteAsync(cliente.Id);
+            foreach (var cuenta in cuentasCliente)
+            {
+                cuenta.Estado = false;
+            }
+            
             await _unitOfWork.CompleteAsync();
             
             return true;
