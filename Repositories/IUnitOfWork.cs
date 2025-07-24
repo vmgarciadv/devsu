@@ -7,6 +7,10 @@ namespace devsu.Repositories
     {
         IClienteRepository Clientes { get; }
         ICuentaRepository Cuentas { get; }
+        IMovimientoRepository Movimientos { get; }
         Task<int> CompleteAsync();
+        Task BeginTransactionAsync();
+        Task CommitTransactionAsync();
+        Task RollbackTransactionAsync();
     }
 }

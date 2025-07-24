@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using devsu.Data;
 
@@ -11,9 +12,11 @@ using devsu.Data;
 namespace devsu.Migrations
 {
     [DbContext(typeof(DevsuContext))]
-    partial class DevsuContextModelSnapshot : ModelSnapshot
+    [Migration("20250723235029_AddMovimientos")]
+    partial class AddMovimientos
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
