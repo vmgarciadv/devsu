@@ -91,5 +91,19 @@ namespace devsu.Controllers
                 return BadRequest(ex.Message);
             }
         }
+
+        [HttpDelete("{numeroCuenta}")]
+        public async Task<ActionResult> DeleteCuenta(int numeroCuenta)
+        {
+            try
+            {
+                await _cuentaService.DeleteCuentaAsync(numeroCuenta);
+                return Ok(new { mensaje = "Cuenta eliminada exitosamente" });
+            }
+            catch (KeyNotFoundException)
+            {
+                return NotFound();
+            }
+        }
     }
 }
