@@ -10,16 +10,27 @@ using devsu.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Load Docker-specific configuration if running in Docker
+// Cargar configuración desde appsettings.json
 if (Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER") == "true")
 {
     builder.Configuration.AddJsonFile("appsettings.Docker.json", optional: true, reloadOnChange: true);
 }
 
-// Add services to the container.
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+// Agregar servicios al contenedor
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+// Configurar CORS
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(builder =>
+    {
+        builder.AllowAnyOrigin()
+               .AllowAnyHeader()
+               .AllowAnyMethod();
+    });
+});
+
 builder.Services.AddControllers()
     .ConfigureApiBehaviorOptions(options =>
     {
@@ -65,12 +76,15 @@ using (var scope = app.Services.CreateScope())
     }
 }
 
-// Configure the HTTP request pipeline.
+// Configurar el pipeline de la aplicación
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+// Habilitar CORS
+app.UseCors();
 
 app.UseHttpsRedirection();
 app.UseAuthorization();
