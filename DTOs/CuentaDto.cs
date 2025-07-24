@@ -5,8 +5,6 @@ namespace devsu.DTOs
 {
     public class CuentaDto
     {
-        public int CuentaId { get; set; }
-        
         public int NumeroCuenta { get; set; }
         
         [Required]
@@ -17,8 +15,6 @@ namespace devsu.DTOs
         public decimal SaldoInicial { get; set; }
         
         public bool Estado { get; set; } = true;
-        
-        public int ClienteId { get; set; }
         
         [Required]
         public string NombreCliente { get; set; }
@@ -34,6 +30,5 @@ namespace devsu.DTOs
         
         public decimal? SaldoInicial { get; set; }
         public bool? Estado { get; set; }
-        public int? ClienteId { get; set; }
     }
 }
