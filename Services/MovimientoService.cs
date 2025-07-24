@@ -15,6 +15,12 @@ namespace devsu.Services
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
         
+        public MovimientoService(IUnitOfWork unitOfWork, IMapper mapper)
+        {
+            _unitOfWork = unitOfWork;
+            _mapper = mapper;
+        }
+        
         public async Task<IEnumerable<MovimientoDto>> GetAllMovimientosAsync()
         {
             var movimientos = await _unitOfWork.Movimientos.GetAllAsync();
@@ -27,26 +33,37 @@ namespace devsu.Services
             return _mapper.Map<MovimientoDto>(movimiento);
         }
         
-        public async Task<MovimientoDto> CreateMovimientoAsync(MovimientoDto movimientoDto)
+        public async Task<MovimientoDto> CreateMovimientoAsync(CreateMovimientoDto createMovimientoDto)
         {
-            // Obtener la cuenta con sus movimientos
-            var cuenta = await _unitOfWork.Cuentas.GetCuentaWithMovimientosAsync(movimientoDto.CuentaId);
-            if (cuenta == null)
+            await _unitOfWork.BeginTransactionAsync();
+            try
             {
-                throw new KeyNotFoundException("Cuenta no encontrada");
-            }
+                Console.WriteLine($"Creando movimiento: {createMovimientoDto.TipoMovimiento}, Valor: {createMovimientoDto.Valor}, Cuenta: {createMovimientoDto.NumeroCuenta}");
+                // Obtener la cuenta por número de cuenta
+                var cuenta = await _unitOfWork.Cuentas.GetByNumeroCuentaAsync(createMovimientoDto.NumeroCuenta);
+                if (cuenta == null)
+                {
+                    throw new KeyNotFoundException($"Cuenta con número {createMovimientoDto.NumeroCuenta} no encontrada");
+                }
             
             // Obtener el último movimiento para calcular el saldo actual
-            var ultimoMovimiento = await _unitOfWork.Movimientos.GetLastMovimientoByCuentaAsync(movimientoDto.CuentaId);
+            var ultimoMovimiento = await _unitOfWork.Movimientos.GetLastMovimientoByCuentaAsync(cuenta.CuentaId);
             decimal saldoActual = ultimoMovimiento?.Saldo ?? cuenta.SaldoInicial;
             
             // Validar tipo de movimiento
-            var esDebito = movimientoDto.TipoMovimiento.ToLower() == "debito";
-            decimal valorMovimiento = esDebito ? -Math.Abs(movimientoDto.Valor) : Math.Abs(movimientoDto.Valor);
+            var tipoMovimientoNormalizado = createMovimientoDto.TipoMovimiento.ToLower();
+            if (tipoMovimientoNormalizado != "debito" && tipoMovimientoNormalizado != "credito")
+            {
+                throw new ArgumentException($"TipoMovimiento debe ser 'Debito' o 'Credito'. Valor recibido: '{createMovimientoDto.TipoMovimiento}'");
+            }
+            
+            var esDebito = tipoMovimientoNormalizado == "debito";
+            decimal valorMovimiento = esDebito ? -Math.Abs(createMovimientoDto.Valor) : Math.Abs(createMovimientoDto.Valor);
             
             // Validaciones para débitos
             if (esDebito)
             {
+                Console.WriteLine($"Validando débito: Saldo actual: {saldoActual}, Valor movimiento: {valorMovimiento}");
                 // Validar saldo disponible
                 if (saldoActual + valorMovimiento < 0)
                 {
@@ -57,20 +74,35 @@ namespace devsu.Services
             // Crear el movimiento
             var movimiento = new Movimiento
             {
-                CuentaId = movimientoDto.CuentaId,
+                CuentaId = cuenta.CuentaId,
                 Fecha = DateTime.Now,
-                TipoMovimiento = movimientoDto.TipoMovimiento,
+                TipoMovimiento = createMovimientoDto.TipoMovimiento,
                 Valor = valorMovimiento,
                 Saldo = saldoActual + valorMovimiento
             };
             
-            await _unitOfWork.Movimientos.AddAsync(movimiento);
-            await _unitOfWork.CompleteAsync();
-            
-            var result = _mapper.Map<MovimientoDto>(movimiento);
-            result.NumeroCuenta = cuenta.NumeroCuenta;
-            
-            return result;
+                await _unitOfWork.Movimientos.AddAsync(movimiento);
+                
+                // Commit transaction (this will also save changes)
+                await _unitOfWork.CommitTransactionAsync();
+                
+                // Mapear después del commit
+                var result = new MovimientoDto
+                {
+                    Fecha = movimiento.Fecha,
+                    TipoMovimiento = movimiento.TipoMovimiento,
+                    Valor = movimiento.Valor,
+                    Saldo = movimiento.Saldo,
+                    NumeroCuenta = cuenta.NumeroCuenta
+                };
+                
+                return result;
+            }
+            catch
+            {
+                await _unitOfWork.RollbackTransactionAsync();
+                throw;
+            }
         }
         
 

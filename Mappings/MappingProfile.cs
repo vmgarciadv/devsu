@@ -15,6 +15,10 @@ namespace devsu.Mappings
             CreateMap<Cuenta, CuentaDto>()
                 .ForMember(dest => dest.NombreCliente, opt => opt.MapFrom(src => src.Cliente.Nombre));
             CreateMap<CuentaDto, Cuenta>();
+
+            CreateMap<Movimiento, MovimientoDto>()
+                .ForMember(dest => dest.NumeroCuenta, opt => opt.MapFrom(src => src.Cuenta.NumeroCuenta));
+            CreateMap<MovimientoDto, Movimiento>();
         }
     }
 }

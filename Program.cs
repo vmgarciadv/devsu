@@ -35,6 +35,7 @@ builder.Services.AddAutoMapper(typeof(Program));
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IClienteService, ClienteService>();
 builder.Services.AddScoped<ICuentaService, CuentaService>();
+builder.Services.AddScoped<IMovimientoService, MovimientoService>();
 
 var app = builder.Build();
 
