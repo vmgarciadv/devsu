@@ -123,5 +123,21 @@ namespace devsu.Services
             
             return _mapper.Map<ClienteDto>(cliente);
         }
+
+        public async Task<bool> DeleteClienteAsync(int id)
+        {
+            var cliente = await _unitOfWork.Clientes.GetByIdAsync(id);
+            if (cliente == null)
+            {
+                throw new KeyNotFoundException("Cliente no encontrado");
+            }
+
+            // Soft delete - cambiar Estado a false
+            cliente.Estado = false;
+            
+            await _unitOfWork.CompleteAsync();
+            
+            return true;
+        }
     }
 }

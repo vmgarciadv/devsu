@@ -93,5 +93,19 @@ namespace devsu.Controllers
                 return BadRequest(ex.Message);
             }
         }
+
+        [HttpDelete("{id}")]
+        public async Task<ActionResult> DeleteCliente(int id)
+        {
+            try
+            {
+                await _clienteService.DeleteClienteAsync(id);
+                return Ok(new { mensaje = "Cliente eliminado exitosamente" });
+            }
+            catch (KeyNotFoundException)
+            {
+                return NotFound();
+            }
+        }
     }
 }
