@@ -11,5 +11,6 @@ namespace devsu.Services
         Task<IEnumerable<ClienteDto>> GetAllClientesAsync();
         Task<ClienteDto> UpdateClienteAsync(int id, ClienteDto clienteDto);
         Task<ClienteDto> PatchClienteAsync(int id, ClientePatchDto clientePatchDto);
+        Task<bool> DeleteClienteAsync(int id);
     }
 }

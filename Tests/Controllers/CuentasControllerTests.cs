@@ -221,5 +221,34 @@ namespace Tests.Controllers
         }
 
         #endregion
+
+        #region DeleteCuenta Tests
+
+        [Fact]
+        public async Task DeleteCuenta_ReturnsOkWithMessage_WhenSuccessful()
+        {
+            _mockCuentaService.Setup(service => service.DeleteCuentaAsync(123456))
+                .ReturnsAsync(true);
+
+            var result = await _controller.DeleteCuenta(123456);
+
+            var okResult = result.Should().BeOfType<OkObjectResult>().Subject;
+            var response = okResult.Value;
+            response.Should().BeEquivalentTo(new { mensaje = "Cuenta eliminada exitosamente" });
+            _mockCuentaService.Verify(service => service.DeleteCuentaAsync(123456), Times.Once);
+        }
+
+        [Fact]
+        public async Task DeleteCuenta_ReturnsNotFound_WhenCuentaDoesNotExist()
+        {
+            _mockCuentaService.Setup(service => service.DeleteCuentaAsync(It.IsAny<int>()))
+                .ThrowsAsync(new KeyNotFoundException());
+
+            var result = await _controller.DeleteCuenta(999999);
+
+            result.Should().BeOfType<NotFoundResult>();
+        }
+
+        #endregion
     }
 }

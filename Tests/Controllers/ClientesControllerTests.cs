@@ -191,5 +191,34 @@ namespace Tests.Controllers
         }
 
         #endregion
+
+        #region DeleteCliente Tests
+
+        [Fact]
+        public async Task DeleteCliente_ReturnsOkWithMessage_WhenSuccessful()
+        {
+            _mockClienteService.Setup(service => service.DeleteClienteAsync(1))
+                .ReturnsAsync(true);
+
+            var result = await _controller.DeleteCliente(1);
+
+            var okResult = result.Should().BeOfType<OkObjectResult>().Subject;
+            var response = okResult.Value;
+            response.Should().BeEquivalentTo(new { mensaje = "Cliente eliminado exitosamente" });
+            _mockClienteService.Verify(service => service.DeleteClienteAsync(1), Times.Once);
+        }
+
+        [Fact]
+        public async Task DeleteCliente_ReturnsNotFound_WhenClienteDoesNotExist()
+        {
+            _mockClienteService.Setup(service => service.DeleteClienteAsync(It.IsAny<int>()))
+                .ThrowsAsync(new KeyNotFoundException());
+
+            var result = await _controller.DeleteCliente(999);
+
+            result.Should().BeOfType<NotFoundResult>();
+        }
+
+        #endregion
     }
 }
