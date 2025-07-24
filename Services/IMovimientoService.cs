@@ -9,6 +9,6 @@ namespace devsu.Services
     {
         Task<IEnumerable<MovimientoDto>> GetAllMovimientosAsync();
         Task<MovimientoDto> GetMovimientoByIdAsync(int id);
-        Task<MovimientoDto> CreateMovimientoAsync(MovimientoDto movimientoDto);
+        Task<MovimientoDto> CreateMovimientoAsync(CreateMovimientoDto createMovimientoDto);
     }
 }

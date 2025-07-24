@@ -1,15 +1,15 @@
 using System;
 using System.ComponentModel.DataAnnotations;
+using devsu.Validators;
 
 namespace devsu.DTOs
 {
     public class MovimientoDto
     {
-        public int MovimientoId { get; set; }
-        
         public DateTime Fecha { get; set; }
         
         [Required]
+        [TipoMovimiento]
         public string TipoMovimiento { get; set; }
         
         [Required]
@@ -17,9 +17,19 @@ namespace devsu.DTOs
         
         public decimal Saldo { get; set; }
         
+        public int NumeroCuenta { get; set; }
+    }
+
+    public class CreateMovimientoDto
+    {
         [Required]
-        public int CuentaId { get; set; }
+        [TipoMovimiento]
+        public string TipoMovimiento { get; set; }
         
-        public string NumeroCuenta { get; set; }
+        [Required]
+        public decimal Valor { get; set; }
+        
+        [Required]
+        public int NumeroCuenta { get; set; }
     }
 }

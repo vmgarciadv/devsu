@@ -9,5 +9,8 @@ namespace devsu.Repositories
         ICuentaRepository Cuentas { get; }
         IMovimientoRepository Movimientos { get; }
         Task<int> CompleteAsync();
+        Task BeginTransactionAsync();
+        Task CommitTransactionAsync();
+        Task RollbackTransactionAsync();
     }
 }
