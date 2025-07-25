@@ -28,82 +28,36 @@ namespace devsu.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<CuentaDto>> GetCuenta(int id)
         {
-            try
-            {
-                var cuenta = await _cuentaService.GetCuentaByNumeroCuentaAsync(id);
-                if (cuenta == null)
-                    return NotFound();
-                    
-                return Ok(cuenta);
-            }
-            catch (KeyNotFoundException)
-            {
-                return NotFound();
-            }
+            var cuenta = await _cuentaService.GetCuentaByNumeroCuentaAsync(id);
+            return Ok(cuenta);
         }
         
         [HttpPost]
         public async Task<ActionResult<CuentaDto>> CreateCuenta(CuentaDto cuentaDto)
         {
-            try
-            {
-                var cuenta = await _cuentaService.CreateCuentaAsync(cuentaDto);
-                return CreatedAtAction(nameof(GetCuenta), new { id = cuenta.NumeroCuenta }, cuenta);
-            }
-            catch (KeyNotFoundException ex)
-            {
-                return BadRequest(ex.Message);
-            }
-            catch (InvalidOperationException ex)
-            {
-                return BadRequest(ex.Message);
-            }
+            var cuenta = await _cuentaService.CreateCuentaAsync(cuentaDto);
+            return CreatedAtAction(nameof(GetCuenta), new { id = cuenta.NumeroCuenta }, cuenta);
         }
 
         [HttpPut("{numeroCuenta}")]
         public async Task<ActionResult<CuentaDto>> UpdateCuenta(int numeroCuenta, CuentaDto cuentaDto)
         {
-            try
-            {
-                var cuenta = await _cuentaService.UpdateCuentaAsync(numeroCuenta, cuentaDto);
-                return Ok(cuenta);
-            }
-            catch (KeyNotFoundException)
-            {
-                return NotFound();
-            }
+            var cuenta = await _cuentaService.UpdateCuentaAsync(numeroCuenta, cuentaDto);
+            return Ok(cuenta);
         }
 
         [HttpPatch("{numeroCuenta}")]
         public async Task<ActionResult<CuentaDto>> PatchCuenta(int numeroCuenta, [FromBody] CuentaPatchDto cuentaPatchDto)
         {
-            try
-            {
-                var cuenta = await _cuentaService.PatchCuentaAsync(numeroCuenta, cuentaPatchDto);
-                return Ok(cuenta);
-            }
-            catch (KeyNotFoundException)
-            {
-                return NotFound();
-            }
-            catch (InvalidOperationException ex)
-            {
-                return BadRequest(ex.Message);
-            }
+            var cuenta = await _cuentaService.PatchCuentaAsync(numeroCuenta, cuentaPatchDto);
+            return Ok(cuenta);
         }
 
         [HttpDelete("{numeroCuenta}")]
         public async Task<ActionResult> DeleteCuenta(int numeroCuenta)
         {
-            try
-            {
-                await _cuentaService.DeleteCuentaAsync(numeroCuenta);
-                return Ok(new { mensaje = "Cuenta eliminada exitosamente" });
-            }
-            catch (KeyNotFoundException)
-            {
-                return NotFound();
-            }
+            await _cuentaService.DeleteCuentaAsync(numeroCuenta);
+            return Ok(new { mensaje = "Cuenta eliminada exitosamente" });
         }
     }
 }

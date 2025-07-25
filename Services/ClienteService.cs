@@ -7,6 +7,7 @@ using AutoMapper;
 using devsu.DTOs;
 using devsu.Models;
 using devsu.Repositories;
+using devsu.Exceptions;
 
 namespace devsu.Services
 {
@@ -24,6 +25,10 @@ namespace devsu.Services
         public async Task<ClienteDto> GetClienteByIdAsync(int id)
         {
             var cliente = await _unitOfWork.Clientes.GetByIdAsync(id);
+            if (cliente == null)
+            {
+                throw new NotFoundException($"Cliente con ID {id} no encontrado");
+            }
             return _mapper.Map<ClienteDto>(cliente);
         }
         
@@ -33,7 +38,7 @@ namespace devsu.Services
             var clienteExistente = await _unitOfWork.Clientes.GetByIdentificacionAsync(clienteDto.Identificacion);
             if (clienteExistente != null)
             {
-                throw new InvalidOperationException("Ya existe un cliente con esa Identificacion.");
+                throw new BusinessException("Ya existe un cliente con esa Identificacion.");
             }
             
             var cliente = _mapper.Map<Cliente>(clienteDto);
@@ -54,7 +59,7 @@ namespace devsu.Services
             var cliente = await _unitOfWork.Clientes.GetByIdAsync(id);
             if (cliente == null)
             {
-                throw new KeyNotFoundException("Cliente no encontrado");
+                throw new NotFoundException("Cliente no encontrado");
             }
 
             // Verificar si la identificación ya está en uso por otro cliente
@@ -63,7 +68,7 @@ namespace devsu.Services
                 var clienteExistente = await _unitOfWork.Clientes.GetByIdentificacionAsync(clienteDto.Identificacion);
                 if (clienteExistente != null && clienteExistente.Id != id)
                 {
-                    throw new InvalidOperationException("Ya existe un cliente con esa Identificacion.");
+                    throw new BusinessException("Ya existe un cliente con esa Identificacion.");
                 }
             }
 
@@ -87,7 +92,7 @@ namespace devsu.Services
             var cliente = await _unitOfWork.Clientes.GetByIdAsync(id);
             if (cliente == null)
             {
-                throw new KeyNotFoundException("Cliente no encontrado");
+                throw new NotFoundException("Cliente no encontrado");
             }
 
             // Validar que no exista otro cliente con la misma Identificación (en caso de ser necesario)
@@ -129,7 +134,7 @@ namespace devsu.Services
             var cliente = await _unitOfWork.Clientes.GetByIdAsync(id);
             if (cliente == null)
             {
-                throw new KeyNotFoundException("Cliente no encontrado");
+                throw new NotFoundException("Cliente no encontrado");
             }
 
             // Soft delete - cambiar Estado a false

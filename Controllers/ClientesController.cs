@@ -21,91 +21,43 @@ namespace devsu.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<ClienteDto>>> GetClientes()
         {
-            try {
-                var clientes = await _clienteService.GetAllClientesAsync();
-                return Ok(clientes);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"Error interno: {ex.Message}");
-            }
+            var clientes = await _clienteService.GetAllClientesAsync();
+            return Ok(clientes);
         }
 
         [HttpGet("{id}")]
         public async Task<ActionResult<ClienteDto>> GetCliente(int id)
         {
-            try
-            {
-                var cliente = await _clienteService.GetClienteByIdAsync(id);
-                if (cliente == null)
-                    return NotFound();
-                    
-                return Ok(cliente);
-            }
-            catch (KeyNotFoundException)
-            {
-                return NotFound();
-            }
+            var cliente = await _clienteService.GetClienteByIdAsync(id);
+            return Ok(cliente);
         }
 
         [HttpPost]
         public async Task<ActionResult<ClienteDto>> CreateCliente(ClienteDto clienteDto)
         {
-            try
-            {
-                var cliente = await _clienteService.CreateClienteAsync(clienteDto);
-                return Created("", cliente);
-            }
-            catch (InvalidOperationException ex)
-            {
-                return BadRequest(ex.Message);
-            }
+            var cliente = await _clienteService.CreateClienteAsync(clienteDto);
+            return Created("", cliente);
         }
 
         [HttpPut("{id}")]
         public async Task<ActionResult<ClienteDto>> UpdateCliente(int id, ClienteDto clienteDto)
         {
-            try
-            {
-                var cliente = await _clienteService.UpdateClienteAsync(id, clienteDto);
-                return Ok(cliente);
-            }
-            catch (KeyNotFoundException)
-            {
-                return NotFound();
-            }
+            var cliente = await _clienteService.UpdateClienteAsync(id, clienteDto);
+            return Ok(cliente);
         }
 
         [HttpPatch("{id}")]
         public async Task<ActionResult<ClienteDto>> PatchCliente(int id, [FromBody] ClientePatchDto clientePatchDto)
         {
-            try
-            {
-                var cliente = await _clienteService.PatchClienteAsync(id, clientePatchDto);
-                return Ok(cliente);
-            }
-            catch (KeyNotFoundException)
-            {
-                return NotFound();
-            }
-            catch (InvalidOperationException ex)
-            {
-                return BadRequest(ex.Message);
-            }
+            var cliente = await _clienteService.PatchClienteAsync(id, clientePatchDto);
+            return Ok(cliente);
         }
 
         [HttpDelete("{id}")]
         public async Task<ActionResult> DeleteCliente(int id)
         {
-            try
-            {
-                await _clienteService.DeleteClienteAsync(id);
-                return Ok(new { mensaje = "Cliente eliminado exitosamente" });
-            }
-            catch (KeyNotFoundException)
-            {
-                return NotFound();
-            }
+            await _clienteService.DeleteClienteAsync(id);
+            return Ok(new { mensaje = "Cliente eliminado exitosamente" });
         }
     }
 }
