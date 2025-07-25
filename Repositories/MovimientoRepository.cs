@@ -45,5 +45,12 @@ namespace devsu.Repositories
                 .ThenByDescending(m => m.MovimientoId)
                 .FirstOrDefaultAsync();
         }
+
+        public async Task<IEnumerable<Movimiento>> GetAllWithCuentaAsync()
+        {
+            return await _context.Movimientos
+                .Include(m => m.Cuenta)
+                .ToListAsync();
+        }
     }
 }
