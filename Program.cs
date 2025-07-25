@@ -64,6 +64,7 @@ builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IClienteService, ClienteService>();
 builder.Services.AddScoped<ICuentaService, CuentaService>();
 builder.Services.AddScoped<IMovimientoService, MovimientoService>();
+builder.Services.AddScoped<IReporteService, ReporteService>();
 
 var app = builder.Build();
 
