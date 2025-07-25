@@ -10,10 +10,27 @@ using devsu.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+// Cargar configuración desde appsettings.json
+if (Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER") == "true")
+{
+    builder.Configuration.AddJsonFile("appsettings.Docker.json", optional: true, reloadOnChange: true);
+}
+
+// Agregar servicios al contenedor
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+// Configurar CORS
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(builder =>
+    {
+        builder.AllowAnyOrigin()
+               .AllowAnyHeader()
+               .AllowAnyMethod();
+    });
+});
+
 builder.Services.AddControllers()
     .ConfigureApiBehaviorOptions(options =>
     {
@@ -44,16 +61,39 @@ builder.Services.AddScoped<IMovimientoService, MovimientoService>();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+// Aplicar migraciones de base de datos al iniciar la aplicación
+using (var scope = app.Services.CreateScope())
+{
+    var dbContext = scope.ServiceProvider.GetRequiredService<DevsuContext>();
+    try
+    {
+        dbContext.Database.Migrate();
+        Console.WriteLine("Migraciones de base de datos aplicadas correctamente.");
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"Ocurrio un error ejecutando las migraciones: {ex.Message}");
+    }
+}
+
+// Configurar el pipeline de la aplicación
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
 
+// Habilitar CORS
+app.UseCors();
+
 app.UseHttpsRedirection();
 app.UseAuthorization();
 app.MapControllers();
+
+// Health check endpoint for Docker
+app.MapGet("/health", () => Results.Ok(new { status = "healthy", timestamp = DateTime.UtcNow }))
+    .WithName("HealthCheck")
+    .WithOpenApi();
 
 var summaries = new[]
 {
