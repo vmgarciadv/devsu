@@ -45,6 +45,12 @@ namespace devsu.Services
             {
                 throw new NotFoundException($"Cliente con nombre '{cuentaDto.NombreCliente}' no encontrado");
             }
+
+            // Validar que el cliente esté activo
+            if (!cliente.Estado)
+            {
+                throw new BusinessException($"El cliente '{cuentaDto.NombreCliente}' no está activo");
+            }
             
             // Generar número de cuenta único
             var numeroCuenta = await GenerateUniqueAccountNumberAsync();
