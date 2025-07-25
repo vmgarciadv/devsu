@@ -10,5 +10,6 @@ namespace devsu.Repositories
         Task<IEnumerable<Movimiento>> GetMovimientosByFechaAsync(int cuentaId, DateTime fechaInicio, DateTime fechaFin);
         Task<decimal> GetTotalDebitosDiarioAsync(int cuentaId, DateTime fecha);
         Task<Movimiento> GetLastMovimientoByCuentaAsync(int cuentaId);
+        Task<IEnumerable<Movimiento>> GetAllWithCuentaAsync();
     }
 }
