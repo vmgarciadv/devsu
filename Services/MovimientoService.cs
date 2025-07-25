@@ -27,8 +27,10 @@ namespace devsu.Services
 
         public async Task<IEnumerable<MovimientoDto>> GetAllMovimientosAsync()
         {
-            var movimientos = await _unitOfWork.Movimientos.GetAllAsync();
-            return _mapper.Map<IEnumerable<MovimientoDto>>(movimientos);
+            var movimientos = await _unitOfWork.Movimientos.GetAllWithCuentaAsync();
+            // Ordenar por fecha descendente (más recientes primero)
+            var movimientosOrdenados = movimientos.OrderByDescending(m => m.Fecha).ThenByDescending(m => m.MovimientoId);
+            return _mapper.Map<IEnumerable<MovimientoDto>>(movimientosOrdenados);
         }
 
         public async Task<MovimientoDto> GetMovimientoByIdAsync(int id)
@@ -98,7 +100,7 @@ namespace devsu.Services
                 {
                     CuentaId = cuenta.CuentaId,
                     Fecha = DateTime.Now,
-                    TipoMovimiento = createMovimientoDto.TipoMovimiento,
+                    TipoMovimiento = esDebito ? "Debito" : "Credito",
                     Valor = valorMovimiento,
                     Saldo = saldoActual + valorMovimiento
                 };
