@@ -18,22 +18,46 @@ namespace devsu.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GenerarReporte([FromQuery] DateTime fecha, [FromQuery] string cliente)
+        public async Task<IActionResult> GenerarReporte(
+            [FromQuery] string cliente,
+            [FromQuery] DateTime? fecha,
+            [FromQuery] DateTime? fechaInicio,
+            [FromQuery] DateTime? fechaFin)
         {
-            var request = new ReporteRequestDto
+            ReporteRequestDto request;
+
+            // Fecha
+            if (fecha.HasValue)
             {
-                Cliente = cliente,
-                FechaInicio = fecha.Date,
-                FechaFin = fecha.Date.AddDays(1).AddSeconds(-1)
-            };
+                request = new ReporteRequestDto
+                {
+                    Cliente = cliente,
+                    FechaInicio = fecha.Value.Date,
+                    FechaFin = fecha.Value.Date.AddDays(1).AddSeconds(-1)
+                };
+            }
+            // FechaInicio y FechaFin
+            else if (fechaInicio.HasValue && fechaFin.HasValue)
+            {
+                request = new ReporteRequestDto
+                {
+                    Cliente = cliente,
+                    FechaInicio = fechaInicio.Value,
+                    FechaFin = fechaFin.Value
+                };
+            }
+            else
+            {
+                return BadRequest(new ErrorResponse
+                {
+                    Type = "https://datatracker.ietf.org/doc/html/rfc7231#section-6.5.1",
+                    Title = "Parámetros inválidos",
+                    Status = 400,
+                    Detail = "Debe proporcionar 'fecha' o tanto 'fechaInicio' como 'fechaFin'",
+                    Instance = "/api/reportes"
+                });
+            }
 
-            var response = await _reporteService.GenerarReporteEstadoCuentaAsync(request);
-            return Ok(response);
-        }
-
-        [HttpGet("rango")]
-        public async Task<IActionResult> GenerarReporteRango([FromQuery] ReporteRequestDto request)
-        {
             var response = await _reporteService.GenerarReporteEstadoCuentaAsync(request);
             return Ok(response);
         }
