@@ -53,6 +53,12 @@ namespace devsu.Services
                     throw new NotFoundException($"Cuenta con número {createMovimientoDto.NumeroCuenta} no encontrada");
                 }
 
+                // Validar que la cuenta esté activa
+                if (!cuenta.Estado)
+                {
+                    throw new BusinessException($"La cuenta {createMovimientoDto.NumeroCuenta} no está activa");
+                }
+
                 // Obtener el último movimiento para calcular el saldo actual
                 var ultimoMovimiento = await _unitOfWork.Movimientos.GetLastMovimientoByCuentaAsync(cuenta.CuentaId);
                 decimal saldoActual = ultimoMovimiento?.Saldo ?? cuenta.SaldoInicial;
