@@ -51,7 +51,9 @@ namespace devsu.Services
         public async Task<IEnumerable<ClienteDto>> GetAllClientesAsync()
         {
             var clientes = await _unitOfWork.Clientes.GetAllAsync();
-            return _mapper.Map<IEnumerable<ClienteDto>>(clientes);
+            // Ordenar por Estado descendente (true primero) y luego por nombre
+            var clientesOrdenados = clientes.OrderByDescending(c => c.Estado).ThenBy(c => c.Nombre);
+            return _mapper.Map<IEnumerable<ClienteDto>>(clientesOrdenados);
         }
 
         public async Task<ClienteDto> UpdateClienteAsync(int id, ClienteDto clienteDto)
