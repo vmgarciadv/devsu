@@ -38,8 +38,7 @@ namespace devsu.Repositories
             {
                 reportes.Add(new ReporteDto
                 {
-                    FechaInicio = reader.GetDateTime(reader.GetOrdinal("FechaInicio")),
-                    FechaFin = reader.GetDateTime(reader.GetOrdinal("FechaFin")),
+                    Fecha = reader.GetDateTime(reader.GetOrdinal("Fecha")),
                     Cliente = reader.GetString(reader.GetOrdinal("Cliente")),
                     NumeroCuenta = reader.GetInt32(reader.GetOrdinal("NumeroCuenta")),
                     TipoCuenta = reader.GetString(reader.GetOrdinal("TipoCuenta")),

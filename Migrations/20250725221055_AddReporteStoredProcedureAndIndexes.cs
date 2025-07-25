@@ -36,22 +36,23 @@ namespace devsu.Migrations
                 BEGIN
                     SET NOCOUNT ON;
                     
+                    -- Only return accounts that have movements in the date range
                     SELECT 
-                        @FechaInicio as FechaInicio,
-                        @FechaFin as FechaFin,
+                        MAX(m.Fecha) as Fecha,
                         p.Nombre as Cliente,
                         cu.NumeroCuenta,
                         cu.TipoCuenta,
                         cu.SaldoInicial,
                         cu.Estado,
-                        ISNULL(SUM(m.Valor), 0) as TotalMovimientos,
-                        cu.SaldoInicial + ISNULL(SUM(m.Valor), 0) as SaldoDisponible
+                        SUM(m.Valor) as TotalMovimientos,
+                        cu.SaldoInicial + SUM(m.Valor) as SaldoDisponible
                     FROM Cuentas cu
                     INNER JOIN Personas p ON cu.ClienteId = p.Id
-                    LEFT JOIN Movimientos m ON cu.CuentaId = m.CuentaId 
+                    INNER JOIN Movimientos m ON cu.CuentaId = m.CuentaId 
+                    WHERE p.Nombre = @ClienteNombre 
+                        AND p.PersonaType = 'Cliente'
                         AND m.Fecha >= @FechaInicio 
                         AND m.Fecha <= @FechaFin
-                    WHERE p.Nombre = @ClienteNombre AND p.PersonaType = 'Cliente'
                     GROUP BY p.Id, p.Nombre, cu.CuentaId, cu.NumeroCuenta, 
                              cu.TipoCuenta, cu.SaldoInicial, cu.Estado
                     ORDER BY cu.NumeroCuenta;
