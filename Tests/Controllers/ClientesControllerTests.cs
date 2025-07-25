@@ -29,8 +29,8 @@ namespace Tests.Controllers
         {
             var clientes = new List<ClienteDto>
             {
-                new() { Id = 1, Nombre = "Juan Pérez", Estado = true },
-                new() { Id = 2, Nombre = "María García", Estado = true }
+                new() { Nombre = "Juan Pérez", Estado = true },
+                new() { Nombre = "María García", Estado = true }
             };
             _mockClienteService.Setup(service => service.GetAllClientesAsync())
                 .ReturnsAsync(clientes);
@@ -62,7 +62,7 @@ namespace Tests.Controllers
         [Fact]
         public async Task GetCliente_ReturnsOkResult_WhenClienteExists()
         {
-            var cliente = new ClienteDto { Id = 1, Nombre = "Juan Pérez", Estado = true };
+            var cliente = new ClienteDto { Nombre = "Juan Pérez", Estado = true };
             _mockClienteService.Setup(service => service.GetClienteByIdAsync(1))
                 .ReturnsAsync(cliente);
 
@@ -70,7 +70,6 @@ namespace Tests.Controllers
 
             var okResult = result.Result.Should().BeOfType<OkObjectResult>().Subject;
             var returnedCliente = okResult.Value.Should().BeOfType<ClienteDto>().Subject;
-            returnedCliente.Id.Should().Be(1);
             returnedCliente.Nombre.Should().Be("Juan Pérez");
         }
 
@@ -90,7 +89,7 @@ namespace Tests.Controllers
         #region CreateCliente Tests
 
         [Fact]
-        public async Task CreateCliente_ReturnsCreatedAtAction_WhenSuccessful()
+        public async Task CreateCliente_ReturnsCreated_WhenSuccessful()
         {
             var clienteDto = new ClienteDto 
             { 
@@ -103,17 +102,15 @@ namespace Tests.Controllers
                 Contrasena = "password123",
                 Estado = true
             };
-            var createdCliente = new ClienteDto { Id = 1, Nombre = "Nuevo Cliente", Estado = true };
+            var createdCliente = new ClienteDto { Nombre = "Nuevo Cliente", Estado = true };
             _mockClienteService.Setup(service => service.CreateClienteAsync(It.IsAny<ClienteDto>()))
                 .ReturnsAsync(createdCliente);
 
             var result = await _controller.CreateCliente(clienteDto);
 
-            var createdResult = result.Result.Should().BeOfType<CreatedAtActionResult>().Subject;
-            createdResult.ActionName.Should().Be(nameof(ClientesController.GetCliente));
-            createdResult.RouteValues["id"].Should().Be(1);
+            var createdResult = result.Result.Should().BeOfType<CreatedResult>().Subject;
             var returnedCliente = createdResult.Value.Should().BeOfType<ClienteDto>().Subject;
-            returnedCliente.Id.Should().Be(1);
+            returnedCliente.Nombre.Should().Be("Nuevo Cliente");
         }
 
         [Fact]
@@ -136,7 +133,7 @@ namespace Tests.Controllers
         [Fact]
         public async Task UpdateCliente_ReturnsOkResult_WhenSuccessful()
         {
-            var clienteDto = new ClienteDto { Id = 1, Nombre = "Cliente Actualizado", Estado = true };
+            var clienteDto = new ClienteDto { Nombre = "Cliente Actualizado", Estado = true };
             _mockClienteService.Setup(service => service.UpdateClienteAsync(1, It.IsAny<ClienteDto>()))
                 .ReturnsAsync(clienteDto);
 
@@ -167,7 +164,7 @@ namespace Tests.Controllers
         public async Task PatchCliente_ReturnsOkResult_WhenSuccessful()
         {
             var patchDto = new ClientePatchDto { Estado = false };
-            var updatedCliente = new ClienteDto { Id = 1, Nombre = "Cliente", Estado = false };
+            var updatedCliente = new ClienteDto { Nombre = "Cliente", Estado = false };
             _mockClienteService.Setup(service => service.PatchClienteAsync(1, It.IsAny<ClientePatchDto>()))
                 .ReturnsAsync(updatedCliente);
 

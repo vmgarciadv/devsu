@@ -29,8 +29,8 @@ namespace Tests.Controllers
         {
             var cuentas = new List<CuentaDto>
             {
-                new CuentaDto { CuentaId = 1, NumeroCuenta = 123456, TipoCuenta = "Ahorro", Estado = true },
-                new CuentaDto { CuentaId = 2, NumeroCuenta = 789012, TipoCuenta = "Corriente", Estado = true }
+                new CuentaDto { NumeroCuenta = 123456, TipoCuenta = "Ahorro", Estado = true, NombreCliente = "Juan Pérez" },
+                new CuentaDto { NumeroCuenta = 789012, TipoCuenta = "Corriente", Estado = true, NombreCliente = "María García" }
             };
             _mockCuentaService.Setup(service => service.GetAllCuentasAsync())
                 .ReturnsAsync(cuentas);
@@ -65,11 +65,11 @@ namespace Tests.Controllers
         {
             var cuenta = new CuentaDto 
             { 
-                CuentaId = 1, 
                 NumeroCuenta = 123456, 
                 TipoCuenta = "Ahorro", 
                 SaldoInicial = 1000,
-                Estado = true 
+                Estado = true,
+                NombreCliente = "Juan Pérez"
             };
             _mockCuentaService.Setup(service => service.GetCuentaByNumeroCuentaAsync(123456))
                 .ReturnsAsync(cuenta);
@@ -106,15 +106,15 @@ namespace Tests.Controllers
                 TipoCuenta = "Ahorro",
                 SaldoInicial = 1000,
                 Estado = true,
-                ClienteId = 1
+                NombreCliente = "Juan Pérez"
             };
             var createdCuenta = new CuentaDto 
             { 
-                CuentaId = 1, 
                 NumeroCuenta = 123456,
                 TipoCuenta = "Ahorro",
                 SaldoInicial = 1000,
-                Estado = true 
+                Estado = true,
+                NombreCliente = "Juan Pérez"
             };
             _mockCuentaService.Setup(service => service.CreateCuentaAsync(It.IsAny<CuentaDto>()))
                 .ReturnsAsync(createdCuenta);
@@ -123,9 +123,9 @@ namespace Tests.Controllers
 
             var createdResult = result.Result.Should().BeOfType<CreatedAtActionResult>().Subject;
             createdResult.ActionName.Should().Be(nameof(CuentasController.GetCuenta));
-            createdResult.RouteValues["id"].Should().Be(1);
+            createdResult.RouteValues["id"].Should().Be(123456);
             var returnedCuenta = createdResult.Value.Should().BeOfType<CuentaDto>().Subject;
-            returnedCuenta.CuentaId.Should().Be(1);
+            returnedCuenta.NumeroCuenta.Should().Be(123456);
         }
 
         [Fact]
@@ -156,10 +156,10 @@ namespace Tests.Controllers
             };
             var updatedCuenta = new CuentaDto 
             { 
-                CuentaId = 1,
                 NumeroCuenta = 123456,
                 TipoCuenta = "Corriente",
-                Estado = true 
+                Estado = true,
+                NombreCliente = "Juan Pérez"
             };
             _mockCuentaService.Setup(service => service.UpdateCuentaAsync(123456, It.IsAny<CuentaDto>()))
                 .ReturnsAsync(updatedCuenta);
@@ -193,9 +193,11 @@ namespace Tests.Controllers
             var patchDto = new CuentaPatchDto { Estado = false };
             var updatedCuenta = new CuentaDto 
             { 
-                CuentaId = 1,
                 NumeroCuenta = 123456,
-                Estado = false 
+                Estado = false,
+                TipoCuenta = "Ahorro",
+                SaldoInicial = 1000,
+                NombreCliente = "Juan Pérez"
             };
             _mockCuentaService.Setup(service => service.PatchCuentaAsync(123456, It.IsAny<CuentaPatchDto>()))
                 .ReturnsAsync(updatedCuenta);

@@ -165,9 +165,6 @@ namespace devsu.Services
             if (cuentaPatchDto.Estado.HasValue)
                 cuenta.Estado = cuentaPatchDto.Estado.Value;
             
-            if (cuentaPatchDto.ClienteId.HasValue)
-                cuenta.ClienteId = cuentaPatchDto.ClienteId.Value;
-            
             await _unitOfWork.CompleteAsync();
             
             return _mapper.Map<CuentaDto>(cuenta);
