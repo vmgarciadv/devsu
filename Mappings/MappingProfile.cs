@@ -8,7 +8,8 @@ namespace devsu.Mappings
     {
         public MappingProfile()
         {
-            CreateMap<Cliente, ClienteDto>();
+            CreateMap<Cliente, ClienteDto>()
+                .ForMember(dest => dest.ClienteId, opt => opt.MapFrom(src => src.Id));
             CreateMap<ClienteDto, Cliente>()
                 .ForMember(dest => dest.Id, opt => opt.Ignore());
 
