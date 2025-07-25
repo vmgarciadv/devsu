@@ -28,40 +28,15 @@ namespace devsu.Controllers
     [HttpGet("{id}")]
     public async Task<ActionResult<MovimientoDto>> GetMovimiento(int id)
     {
-      try
-      {
-        var movimiento = await _movimientoService.GetMovimientoByIdAsync(id);
-        if (movimiento == null)
-          return NotFound();
-
-        return Ok(movimiento);
-      }
-      catch (KeyNotFoundException)
-      {
-        return NotFound();
-      }
+      var movimiento = await _movimientoService.GetMovimientoByIdAsync(id);
+      return Ok(movimiento);
     }
 
     [HttpPost]
     public async Task<ActionResult<MovimientoDto>> CreateMovimiento(CreateMovimientoDto createMovimientoDto)
     {
-      try
-      {
-        var movimiento = await _movimientoService.CreateMovimientoAsync(createMovimientoDto);
-        return Created("", movimiento);
-      }
-      catch (KeyNotFoundException ex)
-      {
-        return BadRequest(ex.Message);
-      }
-      catch (InvalidOperationException ex)
-      {
-        return BadRequest(ex.Message);
-      }
-      catch (ArgumentException ex)
-      {
-        return BadRequest(ex.Message);
-      }
+      var movimiento = await _movimientoService.CreateMovimientoAsync(createMovimientoDto);
+      return Created("", movimiento);
     }
   }
 }

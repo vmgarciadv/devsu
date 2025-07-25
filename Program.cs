@@ -3,10 +3,13 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.AspNetCore.Mvc;
 using devsu.Data;
 using devsu.Repositories;
 using devsu.Services;
 using devsu.Configuration;
+using devsu.Middleware;
+using devsu.Filters;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -31,10 +34,13 @@ builder.Services.AddCors(options =>
     });
 });
 
-builder.Services.AddControllers()
+builder.Services.AddControllers(options =>
+    {
+        options.Filters.Add<ModelValidationFilter>();
+    })
     .ConfigureApiBehaviorOptions(options =>
     {
-        options.SuppressModelStateInvalidFilter = false;
+        options.SuppressModelStateInvalidFilter = true;
     })
     .AddJsonOptions(options =>
     {
@@ -86,11 +92,14 @@ if (app.Environment.IsDevelopment())
 // Habilitar CORS
 app.UseCors();
 
+// Agregar middleware de manejo de excepciones globales
+app.UseMiddleware<GlobalExceptionMiddleware>();
+
 app.UseHttpsRedirection();
 app.UseAuthorization();
 app.MapControllers();
 
-// Health check endpoint for Docker
+// Endpoint de monitoreo
 app.MapGet("/health", () => Results.Ok(new { status = "healthy", timestamp = DateTime.UtcNow }))
     .WithName("HealthCheck")
     .WithOpenApi();

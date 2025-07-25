@@ -6,6 +6,7 @@ using AutoMapper;
 using devsu.DTOs;
 using devsu.Models;
 using devsu.Repositories;
+using devsu.Exceptions;
 
 namespace devsu.Services
 {
@@ -29,6 +30,10 @@ namespace devsu.Services
         public async Task<CuentaDto> GetCuentaByNumeroCuentaAsync(int id)
         {
             var cuenta = await _unitOfWork.Cuentas.GetByNumeroCuentaAsync(id);
+            if (cuenta == null)
+            {
+                throw new NotFoundException($"Cuenta con número {id} no encontrada");
+            }
             return _mapper.Map<CuentaDto>(cuenta);
         }
         
@@ -38,7 +43,7 @@ namespace devsu.Services
             var cliente = await _unitOfWork.Clientes.GetByNombreAsync(cuentaDto.NombreCliente);
             if (cliente == null)
             {
-                throw new KeyNotFoundException($"Cliente con nombre '{cuentaDto.NombreCliente}' no encontrado");
+                throw new NotFoundException($"Cliente con nombre '{cuentaDto.NombreCliente}' no encontrado");
             }
             
             // Generar número de cuenta único
@@ -100,7 +105,7 @@ namespace devsu.Services
             var cuenta = await _unitOfWork.Cuentas.GetByNumeroCuentaAsync(numeroCuenta);
             if (cuenta == null)
             {
-                throw new KeyNotFoundException("Cuenta no encontrada");
+                throw new NotFoundException("Cuenta no encontrada");
             }
             
             // Actualizar manualmente las propiedades para evitar problemas con el Id
@@ -135,7 +140,7 @@ namespace devsu.Services
             var cuenta = await _unitOfWork.Cuentas.GetByNumeroCuentaAsync(numeroCuenta);
             if (cuenta == null)
             {
-                throw new KeyNotFoundException("Cuenta no encontrada");
+                throw new NotFoundException("Cuenta no encontrada");
             }
             
             // Actualizar solo las propiedades que se proporcionan
@@ -175,7 +180,7 @@ namespace devsu.Services
             var cuenta = await _unitOfWork.Cuentas.GetByNumeroCuentaAsync(numeroCuenta);
             if (cuenta == null)
             {
-                throw new KeyNotFoundException("Cuenta no encontrada");
+                throw new NotFoundException("Cuenta no encontrada");
             }
 
             // Soft delete - cambiar Estado a false

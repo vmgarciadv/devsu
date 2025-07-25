@@ -8,6 +8,7 @@ using devsu.DTOs;
 using devsu.Models;
 using devsu.Repositories;
 using devsu.Configuration;
+using devsu.Exceptions;
 
 namespace devsu.Services
 {
@@ -33,6 +34,10 @@ namespace devsu.Services
         public async Task<MovimientoDto> GetMovimientoByIdAsync(int id)
         {
             var movimiento = await _unitOfWork.Movimientos.GetByIdAsync(id);
+            if (movimiento == null)
+            {
+                throw new NotFoundException($"Movimiento con ID {id} no encontrado");
+            }
             return _mapper.Map<MovimientoDto>(movimiento);
         }
 
@@ -45,7 +50,7 @@ namespace devsu.Services
                 var cuenta = await _unitOfWork.Cuentas.GetByNumeroCuentaAsync(createMovimientoDto.NumeroCuenta);
                 if (cuenta == null)
                 {
-                    throw new KeyNotFoundException($"Cuenta con número {createMovimientoDto.NumeroCuenta} no encontrada");
+                    throw new NotFoundException($"Cuenta con número {createMovimientoDto.NumeroCuenta} no encontrada");
                 }
 
                 // Obtener el último movimiento para calcular el saldo actual
@@ -68,7 +73,7 @@ namespace devsu.Services
                     // Validar saldo disponible
                     if (saldoActual + valorMovimiento < 0)
                     {
-                        throw new InvalidOperationException("Saldo no disponible");
+                        throw new BusinessException("Saldo no disponible");
                     }
                     
                     // Validar límite diario de retiros (débitos)
@@ -78,7 +83,7 @@ namespace devsu.Services
                     
                     if (nuevoTotalDebitos > limiteDiario)
                     {
-                        throw new InvalidOperationException($"Cupo diario excedido. Débitos hoy: ${totalDebitosHoy:F2}, Intento: ${Math.Abs(createMovimientoDto.Valor):F2}, Límite: ${limiteDiario:F2}");
+                        throw new BusinessException($"Cupo diario excedido. Débitos hoy: ${totalDebitosHoy:F2}, Intento: ${Math.Abs(createMovimientoDto.Valor):F2}, Límite: ${limiteDiario:F2}");
                     }
                 }
 
