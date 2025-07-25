@@ -13,6 +13,7 @@ namespace devsu.Repositories
         public IClienteRepository Clientes { get; private set; }
         public ICuentaRepository Cuentas { get; private set; }
         public IMovimientoRepository Movimientos { get; private set; }
+        public IReporteRepository Reportes { get; private set; }
         
         public UnitOfWork(DevsuContext context)
         {
@@ -20,6 +21,7 @@ namespace devsu.Repositories
             Clientes = new ClienteRepository(_context);
             Cuentas = new CuentaRepository(_context);
             Movimientos = new MovimientoRepository(_context);
+            Reportes = new ReporteRepository(_context);
         }
         
         public async Task<int> CompleteAsync()

@@ -24,7 +24,10 @@ namespace devsu.Services
         public async Task<IEnumerable<CuentaDto>> GetAllCuentasAsync()
         {
             var cuentas = await _unitOfWork.Cuentas.GetAllWithClienteAsync();
-            return _mapper.Map<IEnumerable<CuentaDto>>(cuentas);
+            var cuentasOrdenadas = cuentas
+                .OrderByDescending(c => c.Estado)
+                .ThenBy(c => c.CuentaId);
+            return _mapper.Map<IEnumerable<CuentaDto>>(cuentasOrdenadas);
         }
         
         public async Task<CuentaDto> GetCuentaByNumeroCuentaAsync(int id)
