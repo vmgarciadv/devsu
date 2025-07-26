@@ -7,6 +7,6 @@ namespace devsu.Repositories
 {
     public interface IReporteRepository
     {
-        Task<IEnumerable<ReporteDto>> GenerarReporteEstadoCuentaAsync(string clienteNombre, DateTime fechaInicio, DateTime fechaFin);
+        Task<IEnumerable<ReporteDto>> GenerarReporteEstadoCuentaAsync(string clienteNombre, DateTime fechaInicio, DateTime fechaFin, int timezoneOffset = 0);
     }
 }

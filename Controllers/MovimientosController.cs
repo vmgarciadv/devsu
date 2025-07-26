@@ -19,10 +19,18 @@ namespace devsu.Controllers
     }
 
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<MovimientoDto>>> GetMovimientos()
+    public async Task<ActionResult<IEnumerable<MovimientoDto>>> GetMovimientos([FromQuery] PaginationParameters paginationParameters)
     {
-      var movimientos = await _movimientoService.GetAllMovimientosAsync();
-      return Ok(movimientos);
+      if (paginationParameters == null || (paginationParameters.PageNumber == 1 && paginationParameters.PageSize == 10))
+      {
+        var movimientos = await _movimientoService.GetAllMovimientosAsync();
+        return Ok(movimientos);
+      }
+      else
+      {
+        var paginatedMovimientos = await _movimientoService.GetAllMovimientosPaginatedAsync(paginationParameters);
+        return Ok(paginatedMovimientos);
+      }
     }
 
     [HttpGet("{id}")]

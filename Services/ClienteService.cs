@@ -56,6 +56,36 @@ namespace devsu.Services
             return _mapper.Map<IEnumerable<ClienteDto>>(clientesOrdenados);
         }
 
+        public async Task<PaginatedResponse<ClienteDto>> GetAllClientesPaginatedAsync(PaginationParameters paginationParameters)
+        {
+            var clientes = await _unitOfWork.Clientes.GetAllAsync();
+            
+            // Ordenar por Estado descendente (true primero) y luego por nombre
+            var clientesOrdenados = clientes
+                .OrderByDescending(c => c.Estado)
+                .ThenBy(c => c.Nombre)
+                .ToList();
+
+            var totalRecords = clientesOrdenados.Count;
+            var totalPages = (int)Math.Ceiling(totalRecords / (double)paginationParameters.PageSize);
+
+            var clientesPaginados = clientesOrdenados
+                .Skip((paginationParameters.PageNumber - 1) * paginationParameters.PageSize)
+                .Take(paginationParameters.PageSize)
+                .ToList();
+
+            var clientesDto = _mapper.Map<IEnumerable<ClienteDto>>(clientesPaginados);
+
+            return new PaginatedResponse<ClienteDto>
+            {
+                Data = clientesDto,
+                PageNumber = paginationParameters.PageNumber,
+                PageSize = paginationParameters.PageSize,
+                TotalRecords = totalRecords,
+                TotalPages = totalPages
+            };
+        }
+
         public async Task<ClienteDto> UpdateClienteAsync(int id, ClienteDto clienteDto)
         {
             var cliente = await _unitOfWork.Clientes.GetByIdAsync(id);

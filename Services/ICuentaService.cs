@@ -7,6 +7,7 @@ namespace devsu.Services
     public interface ICuentaService
     {
         Task<IEnumerable<CuentaDto>> GetAllCuentasAsync();
+        Task<PaginatedResponse<CuentaDto>> GetAllCuentasPaginatedAsync(PaginationParameters paginationParameters);
         Task<CuentaDto> GetCuentaByNumeroCuentaAsync(int numeroCuenta);
         Task<CuentaDto> CreateCuentaAsync(CuentaDto cuentaDto);
         Task<CuentaDto> UpdateCuentaAsync(int numeroCuenta, CuentaDto cuentaDto);

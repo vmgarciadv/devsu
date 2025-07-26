@@ -19,10 +19,18 @@ namespace devsu.Controllers
         }
         
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<CuentaDto>>> GetCuentas()
+        public async Task<ActionResult<IEnumerable<CuentaDto>>> GetCuentas([FromQuery] PaginationParameters paginationParameters)
         {
-            var cuentas = await _cuentaService.GetAllCuentasAsync();
-            return Ok(cuentas);
+            if (paginationParameters == null || (paginationParameters.PageNumber == 1 && paginationParameters.PageSize == 10))
+            {
+                var cuentas = await _cuentaService.GetAllCuentasAsync();
+                return Ok(cuentas);
+            }
+            else
+            {
+                var paginatedCuentas = await _cuentaService.GetAllCuentasPaginatedAsync(paginationParameters);
+                return Ok(paginatedCuentas);
+            }
         }
         
         [HttpGet("{id}")]

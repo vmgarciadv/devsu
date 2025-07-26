@@ -19,5 +19,6 @@ namespace devsu.DTOs
         public string Cliente { get; set; } = string.Empty;
         public DateTime FechaInicio { get; set; }
         public DateTime FechaFin { get; set; }
+        public int TimezoneOffset { get; set; } = 0;
     }
 }

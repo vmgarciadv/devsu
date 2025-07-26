@@ -29,6 +29,35 @@ namespace devsu.Services
                 .ThenBy(c => c.CuentaId);
             return _mapper.Map<IEnumerable<CuentaDto>>(cuentasOrdenadas);
         }
+
+        public async Task<PaginatedResponse<CuentaDto>> GetAllCuentasPaginatedAsync(PaginationParameters paginationParameters)
+        {
+            var cuentas = await _unitOfWork.Cuentas.GetAllWithClienteAsync();
+            
+            var cuentasOrdenadas = cuentas
+                .OrderByDescending(c => c.Estado)
+                .ThenBy(c => c.CuentaId)
+                .ToList();
+
+            var totalRecords = cuentasOrdenadas.Count;
+            var totalPages = (int)Math.Ceiling(totalRecords / (double)paginationParameters.PageSize);
+
+            var cuentasPaginadas = cuentasOrdenadas
+                .Skip((paginationParameters.PageNumber - 1) * paginationParameters.PageSize)
+                .Take(paginationParameters.PageSize)
+                .ToList();
+
+            var cuentasDto = _mapper.Map<IEnumerable<CuentaDto>>(cuentasPaginadas);
+
+            return new PaginatedResponse<CuentaDto>
+            {
+                Data = cuentasDto,
+                PageNumber = paginationParameters.PageNumber,
+                PageSize = paginationParameters.PageSize,
+                TotalRecords = totalRecords,
+                TotalPages = totalPages
+            };
+        }
         
         public async Task<CuentaDto> GetCuentaByNumeroCuentaAsync(int id)
         {
