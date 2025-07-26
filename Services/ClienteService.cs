@@ -161,6 +161,88 @@ namespace devsu.Services
             return _mapper.Map<ClienteDto>(cliente);
         }
 
+        public async Task<PaginatedResponse<ClienteDto>> GetClientesFilteredAsync(ClienteFilterDto filterDto)
+        {
+            var clientes = await _unitOfWork.Clientes.GetAllAsync();
+            var query = clientes.AsQueryable();
+
+            if (!string.IsNullOrEmpty(filterDto.Q))
+            {
+                var searchTerm = filterDto.Q.ToLower();
+                query = query.Where(c => 
+                    c.Nombre.ToLower().Contains(searchTerm) ||
+                    c.Genero.ToLower().Contains(searchTerm) ||
+                    c.Edad.ToString().Contains(searchTerm) ||
+                    c.Identificacion.ToLower().Contains(searchTerm) ||
+                    c.Direccion.ToLower().Contains(searchTerm) ||
+                    c.Telefono.ToLower().Contains(searchTerm) ||
+                    (c.Estado ? "activo" : "inactivo").Contains(searchTerm) ||
+                    (c.Estado ? "true" : "false").Contains(searchTerm)
+                );
+            }
+            else
+            {
+                if (!string.IsNullOrEmpty(filterDto.Nombre))
+                {
+                    query = query.Where(c => c.Nombre.Contains(filterDto.Nombre, StringComparison.OrdinalIgnoreCase));
+                }
+
+                if (!string.IsNullOrEmpty(filterDto.Genero))
+                {
+                    query = query.Where(c => c.Genero.Equals(filterDto.Genero, StringComparison.OrdinalIgnoreCase));
+                }
+
+                if (filterDto.Edad.HasValue)
+                {
+                    query = query.Where(c => c.Edad == filterDto.Edad.Value);
+                }
+
+                if (!string.IsNullOrEmpty(filterDto.Identificacion))
+                {
+                    query = query.Where(c => c.Identificacion.Contains(filterDto.Identificacion));
+                }
+
+                if (!string.IsNullOrEmpty(filterDto.Direccion))
+                {
+                    query = query.Where(c => c.Direccion.Contains(filterDto.Direccion, StringComparison.OrdinalIgnoreCase));
+                }
+
+                if (!string.IsNullOrEmpty(filterDto.Telefono))
+                {
+                    query = query.Where(c => c.Telefono.Contains(filterDto.Telefono));
+                }
+
+                if (filterDto.Estado.HasValue)
+                {
+                    query = query.Where(c => c.Estado == filterDto.Estado.Value);
+                }
+            }
+
+            var clientesOrdenados = query
+                .OrderByDescending(c => c.Estado)
+                .ThenBy(c => c.Nombre)
+                .ToList();
+
+            var totalRecords = clientesOrdenados.Count;
+            var totalPages = (int)Math.Ceiling(totalRecords / (double)filterDto.PageSize);
+
+            var clientesPaginados = clientesOrdenados
+                .Skip((filterDto.PageNumber - 1) * filterDto.PageSize)
+                .Take(filterDto.PageSize)
+                .ToList();
+
+            var clientesDto = _mapper.Map<IEnumerable<ClienteDto>>(clientesPaginados);
+
+            return new PaginatedResponse<ClienteDto>
+            {
+                Data = clientesDto,
+                PageNumber = filterDto.PageNumber,
+                PageSize = filterDto.PageSize,
+                TotalRecords = totalRecords,
+                TotalPages = totalPages
+            };
+        }
+
         public async Task<bool> DeleteClienteAsync(int id)
         {
             var cliente = await _unitOfWork.Clientes.GetByIdAsync(id);
