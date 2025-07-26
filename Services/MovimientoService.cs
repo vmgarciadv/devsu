@@ -73,6 +73,89 @@ namespace devsu.Services
             return _mapper.Map<MovimientoDto>(movimiento);
         }
 
+        public async Task<PaginatedResponse<MovimientoDto>> GetMovimientosFilteredAsync(MovimientoFilterDto filterDto)
+        {
+            var movimientos = await _unitOfWork.Movimientos.GetAllWithCuentaAsync();
+            var query = movimientos.AsQueryable();
+
+            if (!string.IsNullOrEmpty(filterDto.Q))
+            {
+                var searchTerm = filterDto.Q.ToLower();
+                query = query.Where(m => 
+                    m.Fecha.ToString().Contains(searchTerm) ||
+                    m.TipoMovimiento.ToLower().Contains(searchTerm) ||
+                    m.Valor.ToString().Contains(searchTerm) ||
+                    m.Saldo.ToString().Contains(searchTerm) ||
+                    m.Cuenta.NumeroCuenta.ToString().Contains(searchTerm) ||
+                    (m.Cuenta.Cliente != null && m.Cuenta.Cliente.Nombre.ToLower().Contains(searchTerm))
+                );
+            }
+            else
+            {
+                if (filterDto.Fecha.HasValue)
+                {
+                    var localStartDate = filterDto.Fecha.Value.Date;
+                    var localEndDate = localStartDate.AddDays(1);
+                    
+                    var utcStartDate = localStartDate.AddHours(-filterDto.Timezone);
+                    var utcEndDate = localEndDate.AddHours(-filterDto.Timezone);
+                    
+                    query = query.Where(m => m.Fecha >= utcStartDate && m.Fecha < utcEndDate);
+                }
+
+                if (!string.IsNullOrEmpty(filterDto.TipoMovimiento))
+                {
+                    query = query.Where(m => m.TipoMovimiento.Equals(filterDto.TipoMovimiento, StringComparison.OrdinalIgnoreCase));
+                }
+
+                if (filterDto.Valor.HasValue)
+                {
+                    query = query.Where(m => m.Valor == filterDto.Valor.Value);
+                }
+
+                if (filterDto.Saldo.HasValue)
+                {
+                    query = query.Where(m => m.Saldo == filterDto.Saldo.Value);
+                }
+
+                if (filterDto.NumeroCuenta.HasValue)
+                {
+                    query = query.Where(m => m.Cuenta.NumeroCuenta == filterDto.NumeroCuenta.Value);
+                }
+            }
+
+            var movimientosOrdenados = query
+                .OrderByDescending(m => m.Fecha)
+                .ThenByDescending(m => m.MovimientoId)
+                .ToList();
+
+            var totalRecords = movimientosOrdenados.Count;
+            var totalPages = (int)Math.Ceiling(totalRecords / (double)filterDto.PageSize);
+
+            var movimientosPaginados = movimientosOrdenados
+                .Skip((filterDto.PageNumber - 1) * filterDto.PageSize)
+                .Take(filterDto.PageSize)
+                .ToList();
+
+            var movimientosDto = movimientosPaginados.Select(m => new MovimientoDto
+            {
+                Fecha = m.Fecha.AddHours(filterDto.Timezone),
+                TipoMovimiento = m.TipoMovimiento,
+                Valor = m.Valor,
+                Saldo = m.Saldo,
+                NumeroCuenta = m.Cuenta.NumeroCuenta
+            });
+
+            return new PaginatedResponse<MovimientoDto>
+            {
+                Data = movimientosDto,
+                PageNumber = filterDto.PageNumber,
+                PageSize = filterDto.PageSize,
+                TotalRecords = totalRecords,
+                TotalPages = totalPages
+            };
+        }
+
         public async Task<MovimientoDto> CreateMovimientoAsync(CreateMovimientoDto createMovimientoDto)
         {
             await _unitOfWork.BeginTransactionAsync();

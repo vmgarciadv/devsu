@@ -19,17 +19,28 @@ namespace devsu.Controllers
         }
         
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<ClienteDto>>> GetClientes([FromQuery] PaginationParameters paginationParameters)
+        public async Task<ActionResult<IEnumerable<ClienteDto>>> GetClientes([FromQuery] ClienteFilterDto filterDto)
         {
-            if (paginationParameters == null || (paginationParameters.PageNumber == 1 && paginationParameters.PageSize == 10))
+            bool hasFilters = !string.IsNullOrEmpty(filterDto.Q) ||
+                            !string.IsNullOrEmpty(filterDto.Nombre) ||
+                            !string.IsNullOrEmpty(filterDto.Genero) ||
+                            filterDto.Edad.HasValue ||
+                            !string.IsNullOrEmpty(filterDto.Identificacion) ||
+                            !string.IsNullOrEmpty(filterDto.Direccion) ||
+                            !string.IsNullOrEmpty(filterDto.Telefono) ||
+                            filterDto.Estado.HasValue;
+
+            bool isPaginated = filterDto.PageNumber != 1 || filterDto.PageSize != 10;
+
+            if (hasFilters || isPaginated)
             {
-                var clientes = await _clienteService.GetAllClientesAsync();
-                return Ok(clientes);
+                var result = await _clienteService.GetClientesFilteredAsync(filterDto);
+                return Ok(result);
             }
             else
             {
-                var paginatedClientes = await _clienteService.GetAllClientesPaginatedAsync(paginationParameters);
-                return Ok(paginatedClientes);
+                var clientes = await _clienteService.GetAllClientesAsync();
+                return Ok(clientes);
             }
         }
 
