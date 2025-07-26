@@ -19,17 +19,26 @@ namespace devsu.Controllers
         }
         
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<CuentaDto>>> GetCuentas([FromQuery] PaginationParameters paginationParameters)
+        public async Task<ActionResult<IEnumerable<CuentaDto>>> GetCuentas([FromQuery] CuentaFilterDto filterDto)
         {
-            if (paginationParameters == null || (paginationParameters.PageNumber == 1 && paginationParameters.PageSize == 10))
+            bool hasFilters = !string.IsNullOrEmpty(filterDto.Q) ||
+                            filterDto.NumeroCuenta.HasValue ||
+                            !string.IsNullOrEmpty(filterDto.TipoCuenta) ||
+                            filterDto.SaldoInicial.HasValue ||
+                            filterDto.Estado.HasValue ||
+                            !string.IsNullOrEmpty(filterDto.NombreCliente);
+
+            bool isPaginated = filterDto.PageNumber != 1 || filterDto.PageSize != 10;
+
+            if (hasFilters || isPaginated)
             {
-                var cuentas = await _cuentaService.GetAllCuentasAsync();
-                return Ok(cuentas);
+                var result = await _cuentaService.GetCuentasFilteredAsync(filterDto);
+                return Ok(result);
             }
             else
             {
-                var paginatedCuentas = await _cuentaService.GetAllCuentasPaginatedAsync(paginationParameters);
-                return Ok(paginatedCuentas);
+                var cuentas = await _cuentaService.GetAllCuentasAsync();
+                return Ok(cuentas);
             }
         }
         

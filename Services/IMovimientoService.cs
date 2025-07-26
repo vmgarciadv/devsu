@@ -9,6 +9,7 @@ namespace devsu.Services
     {
         Task<IEnumerable<MovimientoDto>> GetAllMovimientosAsync();
         Task<PaginatedResponse<MovimientoDto>> GetAllMovimientosPaginatedAsync(PaginationParameters paginationParameters);
+        Task<PaginatedResponse<MovimientoDto>> GetMovimientosFilteredAsync(MovimientoFilterDto filterDto);
         Task<MovimientoDto> GetMovimientoByIdAsync(int id);
         Task<MovimientoDto> CreateMovimientoAsync(CreateMovimientoDto createMovimientoDto);
     }

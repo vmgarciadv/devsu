@@ -213,6 +213,76 @@ namespace devsu.Services
             return _mapper.Map<CuentaDto>(cuenta);
         }
 
+        public async Task<PaginatedResponse<CuentaDto>> GetCuentasFilteredAsync(CuentaFilterDto filterDto)
+        {
+            var cuentas = await _unitOfWork.Cuentas.GetAllWithClienteAsync();
+            var query = cuentas.AsQueryable();
+
+            if (!string.IsNullOrEmpty(filterDto.Q))
+            {
+                var searchTerm = filterDto.Q.ToLower();
+                query = query.Where(c => 
+                    c.NumeroCuenta.ToString().Contains(searchTerm) ||
+                    c.TipoCuenta.ToLower().Contains(searchTerm) ||
+                    c.SaldoInicial.ToString().Contains(searchTerm) ||
+                    (c.Estado ? "activo" : "inactivo").Contains(searchTerm) ||
+                    (c.Estado ? "true" : "false").Contains(searchTerm) ||
+                    c.Cliente.Nombre.ToLower().Contains(searchTerm)
+                );
+            }
+            else
+            {
+                if (filterDto.NumeroCuenta.HasValue)
+                {
+                    query = query.Where(c => c.NumeroCuenta == filterDto.NumeroCuenta.Value);
+                }
+
+                if (!string.IsNullOrEmpty(filterDto.TipoCuenta))
+                {
+                    query = query.Where(c => c.TipoCuenta.Equals(filterDto.TipoCuenta, StringComparison.OrdinalIgnoreCase));
+                }
+
+                if (filterDto.SaldoInicial.HasValue)
+                {
+                    query = query.Where(c => c.SaldoInicial == filterDto.SaldoInicial.Value);
+                }
+
+                if (filterDto.Estado.HasValue)
+                {
+                    query = query.Where(c => c.Estado == filterDto.Estado.Value);
+                }
+
+                if (!string.IsNullOrEmpty(filterDto.NombreCliente))
+                {
+                    query = query.Where(c => c.Cliente.Nombre.Contains(filterDto.NombreCliente, StringComparison.OrdinalIgnoreCase));
+                }
+            }
+
+            var cuentasOrdenadas = query
+                .OrderByDescending(c => c.Estado)
+                .ThenBy(c => c.CuentaId)
+                .ToList();
+
+            var totalRecords = cuentasOrdenadas.Count;
+            var totalPages = (int)Math.Ceiling(totalRecords / (double)filterDto.PageSize);
+
+            var cuentasPaginadas = cuentasOrdenadas
+                .Skip((filterDto.PageNumber - 1) * filterDto.PageSize)
+                .Take(filterDto.PageSize)
+                .ToList();
+
+            var cuentasDto = _mapper.Map<IEnumerable<CuentaDto>>(cuentasPaginadas);
+
+            return new PaginatedResponse<CuentaDto>
+            {
+                Data = cuentasDto,
+                PageNumber = filterDto.PageNumber,
+                PageSize = filterDto.PageSize,
+                TotalRecords = totalRecords,
+                TotalPages = totalPages
+            };
+        }
+
         public async Task<bool> DeleteCuentaAsync(int numeroCuenta)
         {
             var cuenta = await _unitOfWork.Cuentas.GetByNumeroCuentaAsync(numeroCuenta);
