@@ -19,17 +19,27 @@ namespace devsu.Controllers
     }
 
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<MovimientoDto>>> GetMovimientos([FromQuery] PaginationParameters paginationParameters)
+    public async Task<ActionResult<IEnumerable<MovimientoDto>>> GetMovimientos([FromQuery] MovimientoFilterDto filterDto)
     {
-      if (paginationParameters == null || (paginationParameters.PageNumber == 1 && paginationParameters.PageSize == 10))
+      bool hasFilters = !string.IsNullOrEmpty(filterDto.Q) ||
+                        filterDto.Fecha.HasValue ||
+                        !string.IsNullOrEmpty(filterDto.TipoMovimiento) ||
+                        filterDto.Valor.HasValue ||
+                        filterDto.Saldo.HasValue ||
+                        filterDto.NumeroCuenta.HasValue ||
+                        filterDto.Timezone != 0;
+
+      bool isPaginated = filterDto.PageNumber != 1 || filterDto.PageSize != 10;
+
+      if (hasFilters || isPaginated)
       {
-        var movimientos = await _movimientoService.GetAllMovimientosAsync();
-        return Ok(movimientos);
+        var result = await _movimientoService.GetMovimientosFilteredAsync(filterDto);
+        return Ok(result);
       }
       else
       {
-        var paginatedMovimientos = await _movimientoService.GetAllMovimientosPaginatedAsync(paginationParameters);
-        return Ok(paginatedMovimientos);
+        var movimientos = await _movimientoService.GetAllMovimientosAsync();
+        return Ok(movimientos);
       }
     }
 
