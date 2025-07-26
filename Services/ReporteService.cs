@@ -31,7 +31,8 @@ namespace devsu.Services
             var reportes = await _unitOfWork.Reportes.GenerarReporteEstadoCuentaAsync(
                 request.Cliente, 
                 request.FechaInicio, 
-                request.FechaFin
+                request.FechaFin,
+                request.TimezoneOffset
             );
 
             var reportesList = reportes.ToList();

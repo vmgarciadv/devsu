@@ -22,7 +22,8 @@ namespace devsu.Controllers
             [FromQuery] string cliente,
             [FromQuery] DateTime? fecha,
             [FromQuery] DateTime? fechaInicio,
-            [FromQuery] DateTime? fechaFin)
+            [FromQuery] DateTime? fechaFin,
+            [FromQuery] int timezone = 0)
         {
             ReporteRequestDto request;
 
@@ -33,7 +34,8 @@ namespace devsu.Controllers
                 {
                     Cliente = cliente,
                     FechaInicio = fecha.Value.Date,
-                    FechaFin = fecha.Value.Date.AddDays(1).AddSeconds(-1)
+                    FechaFin = fecha.Value.Date.AddDays(1).AddSeconds(-1),
+                    TimezoneOffset = timezone
                 };
             }
             // FechaInicio y FechaFin
@@ -43,7 +45,8 @@ namespace devsu.Controllers
                 {
                     Cliente = cliente,
                     FechaInicio = fechaInicio.Value,
-                    FechaFin = fechaFin.Value
+                    FechaFin = fechaFin.Value,
+                    TimezoneOffset = timezone
                 };
             }
             else

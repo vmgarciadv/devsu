@@ -19,10 +19,18 @@ namespace devsu.Controllers
         }
         
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<ClienteDto>>> GetClientes()
+        public async Task<ActionResult<IEnumerable<ClienteDto>>> GetClientes([FromQuery] PaginationParameters paginationParameters)
         {
-            var clientes = await _clienteService.GetAllClientesAsync();
-            return Ok(clientes);
+            if (paginationParameters == null || (paginationParameters.PageNumber == 1 && paginationParameters.PageSize == 10))
+            {
+                var clientes = await _clienteService.GetAllClientesAsync();
+                return Ok(clientes);
+            }
+            else
+            {
+                var paginatedClientes = await _clienteService.GetAllClientesPaginatedAsync(paginationParameters);
+                return Ok(paginatedClientes);
+            }
         }
 
         [HttpGet("{id}")]

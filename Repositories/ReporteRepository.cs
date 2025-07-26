@@ -18,7 +18,7 @@ namespace devsu.Repositories
             _context = context;
         }
 
-        public async Task<IEnumerable<ReporteDto>> GenerarReporteEstadoCuentaAsync(string clienteNombre, DateTime fechaInicio, DateTime fechaFin)
+        public async Task<IEnumerable<ReporteDto>> GenerarReporteEstadoCuentaAsync(string clienteNombre, DateTime fechaInicio, DateTime fechaFin, int timezoneOffset = 0)
         {
             var reportes = new List<ReporteDto>();
 
@@ -29,6 +29,7 @@ namespace devsu.Repositories
             command.Parameters.Add(new SqlParameter("@ClienteNombre", clienteNombre));
             command.Parameters.Add(new SqlParameter("@FechaInicio", fechaInicio));
             command.Parameters.Add(new SqlParameter("@FechaFin", fechaFin));
+            command.Parameters.Add(new SqlParameter("@TimezoneOffset", timezoneOffset));
 
             await _context.Database.OpenConnectionAsync();
 

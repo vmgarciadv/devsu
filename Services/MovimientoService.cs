@@ -33,6 +33,36 @@ namespace devsu.Services
             return _mapper.Map<IEnumerable<MovimientoDto>>(movimientosOrdenados);
         }
 
+        public async Task<PaginatedResponse<MovimientoDto>> GetAllMovimientosPaginatedAsync(PaginationParameters paginationParameters)
+        {
+            var movimientos = await _unitOfWork.Movimientos.GetAllWithCuentaAsync();
+            
+            // Ordenar por fecha descendente (más recientes primero)
+            var movimientosOrdenados = movimientos
+                .OrderByDescending(m => m.Fecha)
+                .ThenByDescending(m => m.MovimientoId)
+                .ToList();
+
+            var totalRecords = movimientosOrdenados.Count;
+            var totalPages = (int)Math.Ceiling(totalRecords / (double)paginationParameters.PageSize);
+
+            var movimientosPaginados = movimientosOrdenados
+                .Skip((paginationParameters.PageNumber - 1) * paginationParameters.PageSize)
+                .Take(paginationParameters.PageSize)
+                .ToList();
+
+            var movimientosDto = _mapper.Map<IEnumerable<MovimientoDto>>(movimientosPaginados);
+
+            return new PaginatedResponse<MovimientoDto>
+            {
+                Data = movimientosDto,
+                PageNumber = paginationParameters.PageNumber,
+                PageSize = paginationParameters.PageSize,
+                TotalRecords = totalRecords,
+                TotalPages = totalPages
+            };
+        }
+
         public async Task<MovimientoDto> GetMovimientoByIdAsync(int id)
         {
             var movimiento = await _unitOfWork.Movimientos.GetByIdAsync(id);
