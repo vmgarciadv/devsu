@@ -73,6 +73,78 @@ namespace devsu.Services
             return _mapper.Map<MovimientoDto>(movimiento);
         }
 
+        public async Task<PaginatedResponse<MovimientoDto>> GetMovimientosFilteredAsync(MovimientoFilterDto filterDto)
+        {
+            var movimientos = await _unitOfWork.Movimientos.GetAllWithCuentaAsync();
+            var query = movimientos.AsQueryable();
+
+            if (!string.IsNullOrEmpty(filterDto.Q))
+            {
+                var searchTerm = filterDto.Q.ToLower();
+                query = query.Where(m => 
+                    m.Fecha.ToString().Contains(searchTerm) ||
+                    m.TipoMovimiento.ToLower().Contains(searchTerm) ||
+                    m.Valor.ToString().Contains(searchTerm) ||
+                    m.Saldo.ToString().Contains(searchTerm) ||
+                    m.Cuenta.NumeroCuenta.ToString().Contains(searchTerm) ||
+                    (m.Cuenta.Cliente != null && m.Cuenta.Cliente.Nombre.ToLower().Contains(searchTerm))
+                );
+            }
+            else
+            {
+                if (filterDto.Fecha.HasValue)
+                {
+                    var startDate = filterDto.Fecha.Value.Date;
+                    var endDate = startDate.AddDays(1);
+                    query = query.Where(m => m.Fecha >= startDate && m.Fecha < endDate);
+                }
+
+                if (!string.IsNullOrEmpty(filterDto.TipoMovimiento))
+                {
+                    query = query.Where(m => m.TipoMovimiento.Equals(filterDto.TipoMovimiento, StringComparison.OrdinalIgnoreCase));
+                }
+
+                if (filterDto.Valor.HasValue)
+                {
+                    query = query.Where(m => m.Valor == filterDto.Valor.Value);
+                }
+
+                if (filterDto.Saldo.HasValue)
+                {
+                    query = query.Where(m => m.Saldo == filterDto.Saldo.Value);
+                }
+
+                if (filterDto.NumeroCuenta.HasValue)
+                {
+                    query = query.Where(m => m.Cuenta.NumeroCuenta == filterDto.NumeroCuenta.Value);
+                }
+            }
+
+            var movimientosOrdenados = query
+                .OrderByDescending(m => m.Fecha)
+                .ThenByDescending(m => m.MovimientoId)
+                .ToList();
+
+            var totalRecords = movimientosOrdenados.Count;
+            var totalPages = (int)Math.Ceiling(totalRecords / (double)filterDto.PageSize);
+
+            var movimientosPaginados = movimientosOrdenados
+                .Skip((filterDto.PageNumber - 1) * filterDto.PageSize)
+                .Take(filterDto.PageSize)
+                .ToList();
+
+            var movimientosDto = _mapper.Map<IEnumerable<MovimientoDto>>(movimientosPaginados);
+
+            return new PaginatedResponse<MovimientoDto>
+            {
+                Data = movimientosDto,
+                PageNumber = filterDto.PageNumber,
+                PageSize = filterDto.PageSize,
+                TotalRecords = totalRecords,
+                TotalPages = totalPages
+            };
+        }
+
         public async Task<MovimientoDto> CreateMovimientoAsync(CreateMovimientoDto createMovimientoDto)
         {
             await _unitOfWork.BeginTransactionAsync();

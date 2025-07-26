@@ -2,7 +2,7 @@ namespace devsu.DTOs
 {
     public class ClienteFilterDto : PaginationParameters
     {
-        public string? Q { get; set; }  // Generic search parameter
+        public string? Q { get; set; }
         public string? Nombre { get; set; }
         public string? Genero { get; set; }
         public int? Edad { get; set; }

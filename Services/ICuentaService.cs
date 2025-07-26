@@ -8,6 +8,7 @@ namespace devsu.Services
     {
         Task<IEnumerable<CuentaDto>> GetAllCuentasAsync();
         Task<PaginatedResponse<CuentaDto>> GetAllCuentasPaginatedAsync(PaginationParameters paginationParameters);
+        Task<PaginatedResponse<CuentaDto>> GetCuentasFilteredAsync(CuentaFilterDto filterDto);
         Task<CuentaDto> GetCuentaByNumeroCuentaAsync(int numeroCuenta);
         Task<CuentaDto> CreateCuentaAsync(CuentaDto cuentaDto);
         Task<CuentaDto> UpdateCuentaAsync(int numeroCuenta, CuentaDto cuentaDto);
