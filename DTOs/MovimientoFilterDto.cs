@@ -10,5 +10,6 @@ namespace devsu.DTOs
         public decimal? Valor { get; set; }
         public decimal? Saldo { get; set; }
         public int? NumeroCuenta { get; set; }
+        public int Timezone { get; set; } = 0;
     }
 }

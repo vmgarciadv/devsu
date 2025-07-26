@@ -26,7 +26,8 @@ namespace devsu.Controllers
                         !string.IsNullOrEmpty(filterDto.TipoMovimiento) ||
                         filterDto.Valor.HasValue ||
                         filterDto.Saldo.HasValue ||
-                        filterDto.NumeroCuenta.HasValue;
+                        filterDto.NumeroCuenta.HasValue ||
+                        filterDto.Timezone != 0;
 
       bool isPaginated = filterDto.PageNumber != 1 || filterDto.PageSize != 10;
 

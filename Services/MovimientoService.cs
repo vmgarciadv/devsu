@@ -94,9 +94,13 @@ namespace devsu.Services
             {
                 if (filterDto.Fecha.HasValue)
                 {
-                    var startDate = filterDto.Fecha.Value.Date;
-                    var endDate = startDate.AddDays(1);
-                    query = query.Where(m => m.Fecha >= startDate && m.Fecha < endDate);
+                    var localStartDate = filterDto.Fecha.Value.Date;
+                    var localEndDate = localStartDate.AddDays(1);
+                    
+                    var utcStartDate = localStartDate.AddHours(-filterDto.Timezone);
+                    var utcEndDate = localEndDate.AddHours(-filterDto.Timezone);
+                    
+                    query = query.Where(m => m.Fecha >= utcStartDate && m.Fecha < utcEndDate);
                 }
 
                 if (!string.IsNullOrEmpty(filterDto.TipoMovimiento))
@@ -133,7 +137,14 @@ namespace devsu.Services
                 .Take(filterDto.PageSize)
                 .ToList();
 
-            var movimientosDto = _mapper.Map<IEnumerable<MovimientoDto>>(movimientosPaginados);
+            var movimientosDto = movimientosPaginados.Select(m => new MovimientoDto
+            {
+                Fecha = m.Fecha.AddHours(filterDto.Timezone),
+                TipoMovimiento = m.TipoMovimiento,
+                Valor = m.Valor,
+                Saldo = m.Saldo,
+                NumeroCuenta = m.Cuenta.NumeroCuenta
+            });
 
             return new PaginatedResponse<MovimientoDto>
             {
